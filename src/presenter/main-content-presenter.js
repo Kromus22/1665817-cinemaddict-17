@@ -17,6 +17,9 @@ export default class ContentPresenter {
   filmsSectionList = new RandomFilmsSectionView();
   cardListContainer = new FilmsContainerView();
   topFilmsListContainer = new TopFilmsSectionView();
+  mostCommsListContainer = new TopFilmsSectionView();
+  topCardFilmsListContainer = new FilmsContainerView();
+  mostCommsCardFilmsContainer = new FilmsContainerView();
 
   init = (mainContainer) => {
     this.mainContainer = mainContainer;
@@ -24,18 +27,21 @@ export default class ContentPresenter {
     render(this.mainComponent, this.mainContainer);
     render(this.filmsSectionList, this.mainComponent.getElement());
     render(new FilmsSectionTitleView(), this.filmsSectionList.getElement());
-    render(new FilmsContainerView(), this.filmsSectionList.getElement());
+    render(this.cardListContainer, this.filmsSectionList.getElement());
 
     for (let i = 0; i < CARD_COUNT; i++) {
       render(new FilmCardView(), this.cardListContainer.getElement());
     }
 
     render(new ShowMoreButtonView(), this.filmsSectionList.getElement());
+
     render(this.topFilmsListContainer, this.mainComponent.getElement());
     render(new TopFilmsTitleView(), this.topFilmsListContainer.getElement());
-    render(new FilmCardView(), this.topFilmsListContainer.getElement());
-    render(this.topFilmsListContainer, this.mainComponent.getElement());
-    render(new MostCommsFilmsTitleView(), this.topFilmsListContainer.getElement());
-    render(new FilmCardView(), this.topFilmsListContainer.getElement());
+    render(this.topCardFilmsListContainer, this.topFilmsListContainer.getElement());
+    render(new FilmCardView(), this.topCardFilmsListContainer.getElement());
+    render(this.mostCommsListContainer, this.mainComponent.getElement());
+    render(new MostCommsFilmsTitleView(), this.mostCommsListContainer.getElement());
+    render(this.mostCommsCardFilmsContainer, this.mostCommsListContainer.getElement());
+    render(new FilmCardView(), this.mostCommsCardFilmsContainer.getElement());
   };
 }
