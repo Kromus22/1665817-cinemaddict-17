@@ -1,5 +1,5 @@
 import FilmsSectionView from '../view/films-section-view.js';
-import FilmsContainerView from '../view/films-container-view.js';
+import { FilmsContainerView, SectionType } from '../view/films-container-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 
@@ -10,9 +10,9 @@ const CARD_COUNT = 5;
 
 export default class ContentPresenter {
   mainComponent = new FilmsSectionView();
-  filmsSectionList = new FilmsContainerView(1);
-  topFilmsListContainer = new FilmsContainerView(2, 'films-list--extra');
-  mostCommsListContainer = new FilmsContainerView(3, 'films-list--extra');
+  filmsSectionList = new FilmsContainerView(SectionType.common);
+  topFilmsListContainer = new FilmsContainerView(SectionType.topRated, 'films-list--extra');
+  mostCommsListContainer = new FilmsContainerView(SectionType.mostComm, 'films-list--extra');
 
 
   init = (mainContainer) => {

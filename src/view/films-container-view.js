@@ -1,5 +1,11 @@
 import { createElement } from '../render.js';
 
+const SectionType = {
+  common: '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>',
+  topRated: '<h2 class="films-list__title">Top rated</h2>',
+  mostComm: '<h2 class="films-list__title">Most commented</h2>',
+};
+
 const createFilmsSectionTemplate = (title, extra) => {
 
   let filmClass = '';
@@ -9,12 +15,12 @@ const createFilmsSectionTemplate = (title, extra) => {
   }
   const sectionTitle = () => {
     switch (title) {
-      case 1:
-        return '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>';
-      case 2:
-        return '<h2 class="films-list__title">Top rated</h2>';
-      case 3:
-        return '<h2 class="films-list__title">Most commented</h2>';
+      case SectionType.common:
+        return SectionType.common;
+      case SectionType.topRated:
+        return SectionType.topRated;
+      case SectionType.mostComm:
+        return SectionType.mostComm;
     }
   };
   return `
@@ -27,7 +33,7 @@ const createFilmsSectionTemplate = (title, extra) => {
   `;
 };
 
-export default class FilmsContainerView {
+class FilmsContainerView {
   constructor(title, extra) {
     this.title = title;
     this.extra = extra;
@@ -49,3 +55,5 @@ export default class FilmsContainerView {
     this.element = null;
   }
 }
+
+export { FilmsContainerView, SectionType };
