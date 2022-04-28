@@ -20,15 +20,16 @@ export default class ContentPresenter {
 
     render(this.mainComponent, this.mainContainer);
     render(this.filmsSectionList, this.mainComponent.getElement());
-    for (let i = 0; i < CARD_COUNT; i++) {
-      render(new FilmCardView(), this.filmsSectionList.getElement());
-    }
 
     render(new ShowMoreButtonView(), this.filmsSectionList.getElement());
 
     render(this.topFilmsListContainer, this.mainComponent.getElement());
-    render(new FilmCardView(), this.topFilmsListContainer.getElement());
     render(this.mostCommsListContainer, this.mainComponent.getElement());
-    render(new FilmCardView(), this.mostCommsListContainer.getElement());
+    const filmsDivElement = document.querySelectorAll('.films-list__container');
+    for (let i = 0; i < CARD_COUNT; i++) {
+      render(new FilmCardView(), filmsDivElement[0]);
+    }
+    render(new FilmCardView(), filmsDivElement[1]);
+    render(new FilmCardView(), filmsDivElement[2]);
   };
 }

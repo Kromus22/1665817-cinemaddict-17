@@ -19,5 +19,5 @@ render(new SortsView(), siteMainElement);
 contentPresenter.init(siteMainElement);
 
 render(new FooterStats(), siteFooterElement);
-//render(new PopupView(), siteBodyElement, RenderPosition.BEFOREEND);
+render(new PopupView(), siteBodyElement, RenderPosition.BEFOREEND);
 
