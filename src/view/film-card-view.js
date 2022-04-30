@@ -2,7 +2,7 @@ import { createElement } from '../render.js';
 import { humanizeDate } from '../utils.js';
 
 const createFilmCardTemplate = (card) => {
-  const { filmInfo, userDetails } = card;
+  const { filmInfo } = card;
   const releaseDate = filmInfo.release.date !== null
     ? humanizeDate(filmInfo.release.date)
     : '';
