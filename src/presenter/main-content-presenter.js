@@ -2,21 +2,23 @@ import FilmsSectionView from '../view/films-section-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
-
+import { Titles } from '../utils.js';
 import { render } from '../render.js';
 
-const CARD_COUNT = 5;
+//const CARD_COUNT = 5;
 
 
 export default class ContentPresenter {
   mainComponent = new FilmsSectionView();
-  filmsSectionList = new FilmsContainerView(1);
-  topFilmsListContainer = new FilmsContainerView(2, 'films-list--extra');
-  mostCommsListContainer = new FilmsContainerView(3, 'films-list--extra');
+  filmsSectionList = new FilmsContainerView(Titles.com);
+  topFilmsListContainer = new FilmsContainerView(Titles.top, 'films-list--extra');
+  mostCommsListContainer = new FilmsContainerView(Titles.most, 'films-list--extra');
 
 
-  init = (mainContainer) => {
+  init = (mainContainer, cardsModel) => {
     this.mainContainer = mainContainer;
+    this.cardsModel = cardsModel;
+    this.listCards = [...this.cardsModel.getCards()];
 
     render(this.mainComponent, this.mainContainer);
     render(this.filmsSectionList, this.mainComponent.getElement());
@@ -26,10 +28,10 @@ export default class ContentPresenter {
     render(this.topFilmsListContainer, this.mainComponent.getElement());
     render(this.mostCommsListContainer, this.mainComponent.getElement());
     const filmsDivElement = document.querySelectorAll('.films-list__container');
-    for (let i = 0; i < CARD_COUNT; i++) {
-      render(new FilmCardView(), filmsDivElement[0]);
+    for (let i = 0; i < this.listCards.length; i++) {
+      render(new FilmCardView(this.listCards[i]), filmsDivElement[0]);
     }
-    render(new FilmCardView(), filmsDivElement[1]);
-    render(new FilmCardView(), filmsDivElement[2]);
+    render(new FilmCardView(this.listCards[0]), filmsDivElement[1]);
+    render(new FilmCardView(this.listCards[0]), filmsDivElement[2]);
   };
 }

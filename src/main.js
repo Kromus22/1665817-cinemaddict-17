@@ -5,18 +5,21 @@ import SortsView from './view/sorts-view.js';
 import ContentPresenter from './presenter/main-content-presenter.js';
 import FooterStats from './view/footer-stats-view.js';
 import PopupView from './view/popup-view.js';
+import CardsModel from './model/cards-model.js';
 
 const siteMainElement = document.querySelector('.main');
 const siteHeaderElement = document.querySelector('.header');
-const contentPresenter = new ContentPresenter;
 const siteFooterElement = document.querySelector('.footer');
 const siteBodyElement = document.querySelector('body');
+
+const contentPresenter = new ContentPresenter;
+const cardsModel = new CardsModel();
 
 render(new ProfileView(), siteHeaderElement);
 render(new MenuView(), siteMainElement);
 render(new SortsView(), siteMainElement);
 
-contentPresenter.init(siteMainElement);
+contentPresenter.init(siteMainElement, cardsModel);
 
 render(new FooterStats(), siteFooterElement);
 render(new PopupView(), siteBodyElement, RenderPosition.BEFOREEND);
