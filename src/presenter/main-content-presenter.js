@@ -3,9 +3,8 @@ import FilmsContainerView from '../view/films-container-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import { Titles } from '../utils.js';
-import { render } from '../render.js';
-
-//const CARD_COUNT = 5;
+import { render, RenderPosition } from '../render.js';
+import PopupView from '../view/popup-view.js';
 
 
 export default class ContentPresenter {
@@ -19,6 +18,7 @@ export default class ContentPresenter {
     this.mainContainer = mainContainer;
     this.cardsModel = cardsModel;
     this.listCards = [...this.cardsModel.getCards()];
+    this.listComments = [...this.cardsModel.getComments()];
 
     render(this.mainComponent, this.mainContainer);
     render(this.filmsSectionList, this.mainComponent.getElement());
@@ -33,5 +33,7 @@ export default class ContentPresenter {
     }
     render(new FilmCardView(this.listCards[0]), filmsDivElement[1]);
     render(new FilmCardView(this.listCards[0]), filmsDivElement[2]);
+
+    render(new PopupView(this.listCards[0]), this.mainContainer, RenderPosition.BEFOREEND);
   };
 }

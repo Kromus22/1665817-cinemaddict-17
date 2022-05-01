@@ -1,4 +1,4 @@
-import { getRandomInteger, getRandomNumber } from '../utils.js';
+import { getRandomInteger, getRandomNumber, getArray } from '../utils.js';
 
 const generateDescription = () => {
   const descriptions = [
@@ -11,6 +11,8 @@ const generateDescription = () => {
 
   return descriptions[randomIndex];
 };
+
+const idCommentsForFilm = Array.from({ length: 200 }, (v, i) => i + 1);
 
 const generatePosters = () => {
   const posters = [
@@ -58,17 +60,76 @@ const generateGenre = () => {
   return genres[randomIndex];
 };
 
+const generateAgeRating = () => {
+  const ages = [
+    '0',
+    '3+',
+    '6+',
+    '12+',
+    '16+',
+    '18+',
+  ];
+
+  const randomIndex = getRandomInteger(0, ages.length - 1);
+
+  return ages[randomIndex];
+};
+
+const generateCountry = () => {
+  const countries = [
+    'USA',
+    'Russia',
+    'Italy',
+    'Finland',
+    'France',
+    'United Kingdom',
+  ];
+
+  const randomIndex = getRandomInteger(0, countries.length - 1);
+
+  return countries[randomIndex];
+};
+
+const generateDirector = () => {
+  const directors = [
+    'Tom Ford',
+    'Никитос Михалков',
+    'Some Guy',
+    'Quentin Jerome Tarantino',
+    'Guy Ritchie',
+    'Peter Robert Jackson',
+    'Steven Allan Spielberg',
+  ];
+
+  const randomIndex = getRandomInteger(0, directors.length - 1);
+
+  return directors[randomIndex];
+};
+
+const generateRandomBoolean = () => {
+  const boolean = [
+    true,
+    false,
+  ];
+
+  const randomIndex = getRandomInteger(0, boolean.length - 1);
+
+  return boolean[randomIndex];
+};
+
+let idCounter = 1;
+const getSomeId = () => idCounter++;
+
 export const generateCard = () => ({
-  'id': '0',
-  'comments': [
-  ],
+  'id': getSomeId(),
+  'comments': [],
   'filmInfo': {
     'title': generateTitles(),
     'alternativeTitle': 'Laziness Who Sold Themselves',
     'totalRating': getRandomNumber(1, 10).toFixed(1),
     'poster': generatePosters(),
-    'ageRating': 0,
-    'director': 'Tom Ford',
+    'ageRating': generateAgeRating(),
+    'director': generateDirector(),
     'writers': [
       'Takeshi Kitano'
     ],
@@ -77,7 +138,7 @@ export const generateCard = () => ({
     ],
     'release': {
       'date': '2019-05-11T00:00:00.000Z',
-      'releaseCountry': 'Finland'
+      'releaseCountry': generateCountry(),
     },
     'runtime': getRandomInteger(20, 245),
     'genre': [
@@ -86,11 +147,17 @@ export const generateCard = () => ({
     'description': generateDescription(),
   },
   'userDetails': {
-    'watchlist': false,
-    'alreadyWatched': true,
+    'watchlist': generateRandomBoolean(),
+    'alreadyWatched': generateRandomBoolean(),
     'watchingDate': '2019-04-12T16:12:32.554Z',
-    'favorite': false
+    'favorite': generateRandomBoolean(),
   }
 });
 
-
+export const generateComment = () => ({
+  'id': getSomeId(),
+  'author': 'Ilya O\'Reilly',
+  'comment': 'a film that changed my life, a true masterpiece, post-credit scene was just amazing omg.',
+  'date': '2019-05-11T16:12:32.554Z',
+  'emotion': 'smile',
+});
