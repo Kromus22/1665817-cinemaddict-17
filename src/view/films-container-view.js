@@ -1,4 +1,11 @@
 import { createElement } from '../render.js';
+import { Titles } from '../utils.js';
+
+const SectionType = {
+  common: '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>',
+  topRated: '<h2 class="films-list__title">Top rated</h2>',
+  mostComm: '<h2 class="films-list__title">Most commented</h2>',
+};
 
 const createFilmsSectionTemplate = (title, extra) => {
 
@@ -9,12 +16,12 @@ const createFilmsSectionTemplate = (title, extra) => {
   }
   const sectionTitle = () => {
     switch (title) {
-      case 1:
-        return '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>';
-      case 2:
-        return '<h2 class="films-list__title">Top rated</h2>';
-      case 3:
-        return '<h2 class="films-list__title">Most commented</h2>';
+      case Titles.com:
+        return SectionType.common;
+      case Titles.top:
+        return SectionType.topRated;
+      case Titles.most:
+        return SectionType.mostComm;
     }
   };
   return `
