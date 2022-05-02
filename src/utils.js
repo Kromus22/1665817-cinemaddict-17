@@ -17,24 +17,9 @@ const Titles = {
 
 const humanizeDate = (date) => dayjs(date).format('YYYY');
 const humanizePopupDate = (date) => dayjs(date).format('D MMMM YYYY');
+const humanizeCommDate = (date) => dayjs(date).format('YYYY/MMMM/DD HH:MM');
 
 const isFilmChecked = (check) => Object.values(check).some(Boolean);
 
-const getArray = (item) => {
-  const maxLength = item.length;
-  const lengthOfArray = getRandomNumber(1, maxLength);
-  const array = [];
 
-  while (array.length < lengthOfArray) {
-    const indexOfEl = getRandomNumber(0, maxLength - 1);
-    const el = item[indexOfEl];
-
-    if (!array.includes(el)) {
-      array.push(el);
-    }
-  }
-  return array;
-};
-
-
-export { getRandomInteger, Titles, humanizeDate, getRandomNumber, isFilmChecked, getArray, humanizePopupDate };
+export { getRandomInteger, Titles, humanizeDate, getRandomNumber, isFilmChecked, humanizePopupDate, humanizeCommDate };

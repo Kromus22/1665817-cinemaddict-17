@@ -1,110 +1,93 @@
-import { getRandomInteger, getRandomNumber, getArray } from '../utils.js';
+import { getRandomInteger, getRandomNumber } from '../utils.js';
 
-const generateDescription = () => {
-  const descriptions = [
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra.',
-    'Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.',
-    'Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis.',
-  ];
+const Emoji = ['smile', 'sleeping', 'puke', 'angry'];
 
-  const randomIndex = getRandomInteger(0, descriptions.length - 1);
+const Descriptions = [
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra.',
+  'Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.',
+  'Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis.',
+];
 
-  return descriptions[randomIndex];
+const Posters = [
+  'made-for-each-other.png',
+  'popeye-meets-sinbad.png',
+  'sagebrush-trail.jpg',
+  'santa-claus-conquers-the-martians.jpg',
+  'the-dance-of-life.jpg',
+  'the-great-flamarion.jpg',
+  'the-man-with-the-golden-arm.jpg',
+];
+
+const Titles = [
+  'Avengers',
+  'Il buono, il brutto, il cattivo',
+  'The Godfather',
+  'The Shawshank Redemption',
+  'Fight Club',
+  'The Matrix',
+];
+
+const Genres = [
+  'Comedy',
+  'Action',
+  'Drama',
+  'Cartoon',
+  'Horror',
+  'Triller',
+];
+
+const Ages = [
+  '0',
+  '3+',
+  '6+',
+  '12+',
+  '16+',
+  '18+',
+];
+
+const Countries = [
+  'USA',
+  'Russia',
+  'Italy',
+  'Finland',
+  'France',
+  'United Kingdom',
+];
+
+const Directors = [
+  'Tom Ford',
+  'Никитос Михалков',
+  'Some Guy',
+  'Quentin Jerome Tarantino',
+  'Guy Ritchie',
+  'Peter Robert Jackson',
+  'Steven Allan Spielberg',
+];
+
+const Comments = [
+  'Awesome film!',
+  'Didn\'t understand anything about this movie.Watched this for nothing.',
+  'The acting is just top notch! I have watched this movie hundreds of times and will watch it hundreds more times!',
+  'What was this movie all about?',
+  'Why doesn\'t this movie win an Oscar yet ???',
+];
+
+const CommsAutors = [
+  'Ilya O\'Reilly',
+  'Kevin',
+  'Vutin Put',
+  'Some guy',
+  'Nick Name',
+];
+
+const generateRandomItem = (item) => {
+
+
+  const randomIndex = getRandomInteger(0, item.length - 1);
+
+  return item[randomIndex];
 };
 
-const idCommentsForFilm = Array.from({ length: 200 }, (v, i) => i + 1);
-
-const generatePosters = () => {
-  const posters = [
-    'made-for-each-other.png',
-    'popeye-meets-sinbad.png',
-    'sagebrush-trail.jpg',
-    'santa-claus-conquers-the-martians.jpg',
-    'the-dance-of-life.jpg',
-    'the-great-flamarion.jpg',
-    'the-man-with-the-golden-arm.jpg',
-  ];
-
-  const randomIndex = getRandomInteger(0, posters.length - 1);
-
-  return posters[randomIndex];
-};
-
-const generateTitles = () => {
-  const titles = [
-    'Avengers',
-    'Il buono, il brutto, il cattivo',
-    'The Godfather',
-    'The Shawshank Redemption',
-    'Fight Club',
-    'The Matrix',
-  ];
-
-  const randomIndex = getRandomInteger(0, titles.length - 1);
-
-  return titles[randomIndex];
-};
-
-const generateGenre = () => {
-  const genres = [
-    'Comedy',
-    'Action',
-    'Drama',
-    'Cartoon',
-    'Horror',
-    'Triller',
-  ];
-
-  const randomIndex = getRandomInteger(0, genres.length - 1);
-
-  return genres[randomIndex];
-};
-
-const generateAgeRating = () => {
-  const ages = [
-    '0',
-    '3+',
-    '6+',
-    '12+',
-    '16+',
-    '18+',
-  ];
-
-  const randomIndex = getRandomInteger(0, ages.length - 1);
-
-  return ages[randomIndex];
-};
-
-const generateCountry = () => {
-  const countries = [
-    'USA',
-    'Russia',
-    'Italy',
-    'Finland',
-    'France',
-    'United Kingdom',
-  ];
-
-  const randomIndex = getRandomInteger(0, countries.length - 1);
-
-  return countries[randomIndex];
-};
-
-const generateDirector = () => {
-  const directors = [
-    'Tom Ford',
-    'Никитос Михалков',
-    'Some Guy',
-    'Quentin Jerome Tarantino',
-    'Guy Ritchie',
-    'Peter Robert Jackson',
-    'Steven Allan Spielberg',
-  ];
-
-  const randomIndex = getRandomInteger(0, directors.length - 1);
-
-  return directors[randomIndex];
-};
 
 const generateRandomBoolean = () => {
   const boolean = [
@@ -117,19 +100,19 @@ const generateRandomBoolean = () => {
   return boolean[randomIndex];
 };
 
-let idCounter = 1;
-const getSomeId = () => idCounter++;
+let idFilm = 0;
+let idComm = 0;
 
 export const generateCard = () => ({
-  'id': getSomeId(),
-  'comments': [],
+  'id': idFilm++,
+  'comments': [1, 15, 34, 123, 48],
   'filmInfo': {
-    'title': generateTitles(),
+    'title': generateRandomItem(Titles),
     'alternativeTitle': 'Laziness Who Sold Themselves',
     'totalRating': getRandomNumber(1, 10).toFixed(1),
-    'poster': generatePosters(),
-    'ageRating': generateAgeRating(),
-    'director': generateDirector(),
+    'poster': generateRandomItem(Posters),
+    'ageRating': generateRandomItem(Ages),
+    'director': generateRandomItem(Directors),
     'writers': [
       'Takeshi Kitano'
     ],
@@ -138,13 +121,13 @@ export const generateCard = () => ({
     ],
     'release': {
       'date': '2019-05-11T00:00:00.000Z',
-      'releaseCountry': generateCountry(),
+      'releaseCountry': generateRandomItem(Countries),
     },
     'runtime': getRandomInteger(20, 245),
     'genre': [
-      generateGenre()
+      generateRandomItem(Genres)
     ],
-    'description': generateDescription(),
+    'description': generateRandomItem(Descriptions),
   },
   'userDetails': {
     'watchlist': generateRandomBoolean(),
@@ -155,9 +138,9 @@ export const generateCard = () => ({
 });
 
 export const generateComment = () => ({
-  'id': getSomeId(),
-  'author': 'Ilya O\'Reilly',
-  'comment': 'a film that changed my life, a true masterpiece, post-credit scene was just amazing omg.',
+  'id': idComm++,
+  'author': generateRandomItem(CommsAutors),
+  'comment': generateRandomItem(Comments),
   'date': '2019-05-11T16:12:32.554Z',
-  'emotion': 'smile',
+  'emotion': generateRandomItem(Emoji),
 });

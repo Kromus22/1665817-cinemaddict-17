@@ -23,6 +23,8 @@ const createFilmCardTemplate = (card) => {
   const durationHours = Math.floor(filmInfo.runtime / 60);
   const durationMinutes = filmInfo.runtime - durationHours * 60;
 
+  const commentsCount = card.comments.length;
+
   return (`
   <article class="film-card">
     <a class="film-card__link">
@@ -35,7 +37,7 @@ const createFilmCardTemplate = (card) => {
       </p>
       <img src="./images/posters/${filmInfo.poster}" alt="" class="film-card__poster">
       <p class="film-card__description">${filmInfo.description}</p>
-      <span class="film-card__comments">0 comments</span>
+      <span class="film-card__comments">${commentsCount} comments</span>
     </a>
     <div class="film-card__controls">
       <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${watchlistCheck}" type="button">Add to watchlist</button>

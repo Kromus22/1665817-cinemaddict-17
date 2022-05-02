@@ -34,6 +34,8 @@ export default class ContentPresenter {
     render(new FilmCardView(this.listCards[0]), filmsDivElement[1]);
     render(new FilmCardView(this.listCards[0]), filmsDivElement[2]);
 
-    render(new PopupView(this.listCards[0]), this.mainContainer, RenderPosition.BEFOREEND);
+
+    render(new PopupView(this.listCards[0], this.listComments), this.mainContainer, RenderPosition.BEFOREEND);
+
   };
 }
