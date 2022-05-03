@@ -1,7 +1,7 @@
 import { generateCard, generateComment } from '../fish/film-card.js';
 
 export default class CardsModel {
-  #cards = Array.from({ length: 15 }, generateCard);
+  #cards = Array.from({ length: 17 }, generateCard);
   #comments = Array.from({ length: 200 }, generateComment);
 
   get cards() {
