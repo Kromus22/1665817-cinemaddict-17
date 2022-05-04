@@ -11,14 +11,14 @@ const siteHeaderElement = document.querySelector('.header');
 const siteFooterElement = document.querySelector('.footer');
 
 
-const contentPresenter = new ContentPresenter;
 const cardsModel = new CardsModel();
+const contentPresenter = new ContentPresenter(siteMainElement, cardsModel);
 
 render(new ProfileView(), siteHeaderElement);
 render(new MenuView(), siteMainElement);
 
 
-contentPresenter.init(siteMainElement, cardsModel);
+contentPresenter.init();
 
 render(new FooterStats(), siteFooterElement);
 

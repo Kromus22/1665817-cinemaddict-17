@@ -28,12 +28,19 @@ export default class ContentPresenter {
   #listComments = [];
   #renderCardCount = CARD_COUNT_PER_STEP;
 
-
-  init = (mainContainer, cardsModel) => {
+  constructor(mainContainer, cardsModel) {
     this.#mainContainer = mainContainer;
     this.#cardsModel = cardsModel;
+  }
+
+  init = () => {
     this.#listCards = [...this.#cardsModel.cards];
     this.#listComments = [...this.#cardsModel.comments];
+
+    this.#renderBoard();
+  };
+
+  #renderBoard = () => {
 
     if (!this.#listCards.length) {
       render(this.#mainComponent, this.#mainContainer);
