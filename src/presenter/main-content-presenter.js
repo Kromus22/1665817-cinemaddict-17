@@ -5,6 +5,10 @@ import ShowMoreButtonView from '../view/show-more-button-view.js';
 import { Titles } from '../utils.js';
 import { render } from '../render.js';
 import PopupView from '../view/popup-view.js';
+import NoResultsView from '../view/no-results-view.js';
+import SortView from '../view/sorts-view.js';
+
+const CARD_COUNT_PER_STEP = 5;
 
 const siteBodyElement = document.querySelector('body');
 
@@ -13,12 +17,16 @@ export default class ContentPresenter {
   #cardsModel = null;
 
   #mainComponent = new FilmsSectionView();
+  #sortComponent = new SortView();
+  #noResultsComponent = new NoResultsView();
   #filmsSectionList = new FilmsContainerView(Titles.com);
   #topFilmsListContainer = new FilmsContainerView(Titles.top, 'films-list--extra');
   #mostCommsListContainer = new FilmsContainerView(Titles.most, 'films-list--extra');
+  #showMoreBtnComponent = new ShowMoreButtonView();
 
   #listCards = [];
   #listComments = [];
+  #renderCardCount = CARD_COUNT_PER_STEP;
 
 
   init = (mainContainer, cardsModel) => {
@@ -27,20 +35,43 @@ export default class ContentPresenter {
     this.#listCards = [...this.#cardsModel.cards];
     this.#listComments = [...this.#cardsModel.comments];
 
-    render(this.#mainComponent, this.#mainContainer);
-    render(this.#filmsSectionList, this.#mainComponent.element);
+    if (!this.#listCards.length) {
+      render(this.#mainComponent, this.#mainContainer);
+      render(this.#noResultsComponent, this.#mainComponent.element);
+    } else {
+      render(this.#sortComponent, this.#mainComponent.element);
+      render(this.#mainComponent, this.#mainContainer);
+      render(this.#filmsSectionList, this.#mainComponent.element);
 
-    render(new ShowMoreButtonView(), this.#filmsSectionList.element);
+      if (this.#listCards.length > CARD_COUNT_PER_STEP) {
+        render(this.#showMoreBtnComponent, this.#filmsSectionList.element);
 
-    render(this.#topFilmsListContainer, this.#mainComponent.element);
-    render(this.#mostCommsListContainer, this.#mainComponent.element);
-    const filmsDivElement = document.querySelectorAll('.films-list__container');
-    for (let i = 0; i < this.#listCards.length; i++) {
-      this.#renderCards(this.#listCards[i], filmsDivElement[0]);
+        this.#showMoreBtnComponent.element.addEventListener('click', this.#handleShowMoreBtnClick);
+
+      }
+
+      render(this.#topFilmsListContainer, this.#mainComponent.element);
+      render(this.#mostCommsListContainer, this.#mainComponent.element);
+
+      for (let i = 0; i < Math.min(this.#listCards.length, CARD_COUNT_PER_STEP); i++) {
+        this.#renderCards(this.#listCards[i], this.#filmsSectionList.container);
+      }
+      render(new FilmCardView(this.#listCards[0]), this.#topFilmsListContainer.container);
+      render(new FilmCardView(this.#listCards[0]), this.#mostCommsListContainer.container);
     }
-    render(new FilmCardView(this.#listCards[0]), filmsDivElement[1]);
-    render(new FilmCardView(this.#listCards[0]), filmsDivElement[2]);
+  };
 
+  #handleShowMoreBtnClick = (evt) => {
+    evt.preventDefault();
+    this.#listCards.slice(this.#renderCardCount, this.#renderCardCount + CARD_COUNT_PER_STEP)
+      .forEach((card) => this.#renderCards(card, this.#filmsSectionList.container));
+
+    this.#renderCardCount += CARD_COUNT_PER_STEP;
+
+    if (this.#renderCardCount >= this.#listCards.length) {
+      this.#showMoreBtnComponent.element.remove();
+      this.#showMoreBtnComponent.removeElement();
+    }
   };
 
   #renderCards = (card, place) => {

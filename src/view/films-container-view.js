@@ -54,6 +54,10 @@ export default class FilmsContainerView {
     return this.#element;
   }
 
+  get container() {
+    return this.element.querySelector('.films-list__container');
+  }
+
   removeElement() {
     this.#element = null;
   }
