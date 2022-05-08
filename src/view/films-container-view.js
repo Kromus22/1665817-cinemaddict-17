@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { Titles } from '../utils.js';
 
 const SectionType = {
@@ -34,31 +34,19 @@ const createFilmsSectionTemplate = (title, extra) => {
   `;
 };
 
-export default class FilmsContainerView {
+export default class FilmsContainerView extends AbstractView {
   constructor(title, extra) {
+    super();
     this.title = title;
     this.extra = extra;
   }
 
-  #element = null;
-
   get template() {
     return createFilmsSectionTemplate(this.title, this.extra);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get container() {
     return this.element.querySelector('.films-list__container');
   }
 
-  removeElement() {
-    this.#element = null;
-  }
 }

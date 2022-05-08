@@ -1,8 +1,13 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { humanizeDate } from '../utils.js';
 
 const createFilmCardTemplate = (card) => {
+  const MAX_DESCR_LENGTH = 139;
+
   const { filmInfo, userDetails } = card;
+
+  const description = filmInfo.description.length > MAX_DESCR_LENGTH
+    ? `${filmInfo.description.slice(0, MAX_DESCR_LENGTH)}...` : filmInfo.description;
 
   const releaseDate = filmInfo.release.date !== null
     ? humanizeDate(filmInfo.release.date)
@@ -36,7 +41,7 @@ const createFilmCardTemplate = (card) => {
         <span class="film-card__genre">${filmInfo.genre}</span>
       </p>
       <img src="./images/posters/${filmInfo.poster}" alt="" class="film-card__poster">
-      <p class="film-card__description">${filmInfo.description}</p>
+      <p class="film-card__description">${description}</p>
       <span class="film-card__comments">${commentsCount} comments</span>
     </a>
     <div class="film-card__controls">
@@ -48,26 +53,24 @@ const createFilmCardTemplate = (card) => {
   `);
 };
 
-export default class FilmCardView {
+export default class FilmCardView extends AbstractView {
   constructor(card) {
+    super();
     this.card = card;
   }
-
-  #element = null;
 
   get template() {
     return createFilmCardTemplate(this.card);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setOpenHandler = (callback) => {
+    this._callback.editClick = callback;
+    this.element.querySelector('.film-card__poster').addEventListener('click', this.#openClickHandler);
+  };
 
-    return this.#element;
-  }
+  #openClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.editClick();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
 }
