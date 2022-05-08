@@ -3,7 +3,7 @@ import FilmsContainerView from '../view/films-container-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import { Titles } from '../utils.js';
-import { render } from '../framework/render.js';
+import { render, remove } from '../framework/render.js';
 import PopupView from '../view/popup-view.js';
 import NoResultsView from '../view/no-results-view.js';
 import SortView from '../view/sorts-view.js';
@@ -53,7 +53,7 @@ export default class ContentPresenter {
       if (this.#listCards.length > CARD_COUNT_PER_STEP) {
         render(this.#showMoreBtnComponent, this.#filmsSectionList.element);
 
-        this.#showMoreBtnComponent.element.addEventListener('click', this.#handleShowMoreBtnClick);
+        this.#showMoreBtnComponent.setClickHandler(this.#handleShowMoreBtnClick);
 
       }
 
@@ -68,16 +68,15 @@ export default class ContentPresenter {
     }
   };
 
-  #handleShowMoreBtnClick = (evt) => {
-    evt.preventDefault();
+  #handleShowMoreBtnClick = () => {
+
     this.#listCards.slice(this.#renderCardCount, this.#renderCardCount + CARD_COUNT_PER_STEP)
       .forEach((card) => this.#renderCards(card, this.#filmsSectionList.container));
 
     this.#renderCardCount += CARD_COUNT_PER_STEP;
 
     if (this.#renderCardCount >= this.#listCards.length) {
-      this.#showMoreBtnComponent.element.remove();
-      this.#showMoreBtnComponent.removeElement();
+      remove(this.#showMoreBtnComponent);
     }
   };
 
@@ -103,12 +102,12 @@ export default class ContentPresenter {
       }
     };
 
-    cardComponent.element.querySelector('.film-card__poster').addEventListener('click', () => {
+    cardComponent.setOpenHandler(() => {
       openPopup();
       document.addEventListener('keydown', onEscKeyDown);
     });
 
-    popupComponent.element.querySelector('.film-details__close-btn').addEventListener('click', () => {
+    popupComponent.setClosePopupButtonHandler(() => {
       closePopup();
       document.removeEventListener('keydown', onEscKeyDown);
     });
