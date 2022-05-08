@@ -1,4 +1,4 @@
-import { render } from './render.js';
+import { render } from './framework/render.js';
 import MenuView from './view/menu-view.js';
 import ProfileView from './view/profile-view.js';
 import ContentPresenter from './presenter/main-content-presenter.js';
