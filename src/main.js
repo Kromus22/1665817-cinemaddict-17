@@ -15,7 +15,7 @@ const cardsModel = new CardsModel();
 const contentPresenter = new ContentPresenter(siteMainElement, cardsModel);
 
 render(new ProfileView(), siteHeaderElement);
-render(new MenuView(), siteMainElement);
+render(new MenuView(cardsModel.cards), siteMainElement);
 
 
 contentPresenter.init();

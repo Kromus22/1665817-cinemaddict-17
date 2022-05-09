@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { Titles } from '../utils.js';
+import { Titles } from '../consts.js';
 
 const SectionType = {
   common: '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>',
