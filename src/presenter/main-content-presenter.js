@@ -2,7 +2,7 @@ import FilmsSectionView from '../view/films-section-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
-import { Titles } from '../utils.js';
+import { Titles } from '../consts.js';
 import { render, remove } from '../framework/render.js';
 import PopupView from '../view/popup-view.js';
 import NoResultsView from '../view/no-results-view.js';
