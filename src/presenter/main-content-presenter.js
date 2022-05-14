@@ -4,13 +4,14 @@ import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import { Titles } from '../consts.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
-import PopupView from '../view/popup-view.js';
+import CardPresenter from './card-presenter.js';
 import NoResultsView from '../view/no-results-view.js';
 import SortView from '../view/sorts-view.js';
+import CardsModel from '../model/cards-model.js';
+
 
 const CARD_COUNT_PER_STEP = 5;
 
-const siteBodyElement = document.querySelector('body');
 
 export default class ContentPresenter {
   #mainContainer = null;
@@ -23,9 +24,10 @@ export default class ContentPresenter {
   #topFilmsListContainer = new FilmsContainerView(Titles.top, 'films-list--extra');
   #mostCommsListContainer = new FilmsContainerView(Titles.most, 'films-list--extra');
   #showMoreBtnComponent = new ShowMoreButtonView();
+  #cards = new CardsModel();
 
   #listCards = [];
-  #listComments = [];
+
   #renderCardCount = CARD_COUNT_PER_STEP;
 
   constructor(mainContainer, cardsModel) {
@@ -35,8 +37,6 @@ export default class ContentPresenter {
 
   init = () => {
     this.#listCards = [...this.#cardsModel.cards];
-    this.#listComments = [...this.#cardsModel.comments];
-
     this.#renderBoard();
   };
 
@@ -92,38 +92,8 @@ export default class ContentPresenter {
   };
 
   #renderCard = (card, place) => {
-    const cardComponent = new FilmCardView(card);
-    const popupComponent = new PopupView(card, this.#listComments);
-
-    const openPopup = () => {
-      siteBodyElement.appendChild(popupComponent.element);
-      siteBodyElement.classList.add('hide-overflow');
-    };
-
-    const closePopup = () => {
-      siteBodyElement.removeChild(popupComponent.element);
-      siteBodyElement.classList.remove('hide-overflow');
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        closePopup();
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
-    };
-
-    cardComponent.setOpenHandler(() => {
-      openPopup();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
-
-    popupComponent.setClosePopupButtonHandler(() => {
-      closePopup();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    render(cardComponent, place);
+    const cardPresenter = new CardPresenter(this.#filmsSectionList, this.#cards);
+    cardPresenter.init(card, place);
   };
 
   #renderBoard = () => {

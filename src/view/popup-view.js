@@ -168,6 +168,7 @@ export default class PopupView extends AbstractView {
 
   get template() {
     return createPopupTemplate(this.card, this.comment);
+
   }
 
   setClosePopupButtonHandler = (callback) => {
