@@ -1,4 +1,5 @@
 import { getRandomInteger, getRandomNumber } from '../utils.js';
+import { nanoid } from 'nanoid';
 
 const Emoji = ['smile', 'sleeping', 'puke', 'angry'];
 
@@ -100,12 +101,11 @@ const generateRandomBoolean = () => {
   return boolean[randomIndex];
 };
 
-let idFilm = 0;
 let idComm = 0;
 
 export const generateCard = () => ({
-  'id': idFilm++,
-  'comments': [1, 15, 34, 123, 48],
+  'id': nanoid(),
+  'comments': [201, 215, 234, 223, 348],
   'filmInfo': {
     'title': generateRandomItem(Titles),
     'alternativeTitle': 'Laziness Who Sold Themselves',

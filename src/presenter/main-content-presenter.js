@@ -8,6 +8,7 @@ import CardPresenter from './card-presenter.js';
 import NoResultsView from '../view/no-results-view.js';
 import SortView from '../view/sorts-view.js';
 import CardsModel from '../model/cards-model.js';
+import { updateItem } from '../utils.js';
 
 
 const CARD_COUNT_PER_STEP = 5;
@@ -27,8 +28,8 @@ export default class ContentPresenter {
   #cards = new CardsModel();
 
   #listCards = [];
-
   #renderCardCount = CARD_COUNT_PER_STEP;
+  #cardPresenter = new Map();
 
   constructor(mainContainer, cardsModel) {
     this.#mainContainer = mainContainer;
@@ -69,6 +70,11 @@ export default class ContentPresenter {
     }
   };
 
+  #handleCardChange = (updatedCard) => {
+    this.#listCards = updateItem(this.#listCards, updatedCard);
+    this.#cardPresenter.get(updatedCard.id).init(updatedCard);
+  };
+
   #renderSort = () => {
     render(this.#sortComponent, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
   };
@@ -92,8 +98,16 @@ export default class ContentPresenter {
   };
 
   #renderCard = (card, place) => {
-    const cardPresenter = new CardPresenter(this.#filmsSectionList, this.#cards);
+    const cardPresenter = new CardPresenter(this.#filmsSectionList, this.#cards, this.#handleCardChange);
     cardPresenter.init(card, place);
+    this.#cardPresenter.set(card.id, cardPresenter);
+  };
+
+  #clearCardList = () => {
+    this.#cardPresenter.forEach((presenter) => presenter.destroy());
+    this.#cardPresenter.clear();
+    this.#renderCardCount = CARD_COUNT_PER_STEP;
+    remove(this.#showMoreBtnComponent);
   };
 
   #renderBoard = () => {
