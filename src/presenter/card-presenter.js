@@ -26,9 +26,6 @@ export default class CardPresenter {
 
     const prevCardComponent = this.#cardComponent;
     const prevPopupComponent = this.#popupComponent;
-    const watch = this.#card.userDetails.watchlist;
-    const alreadyWatch = this.#card.userDetails.alreadyWatched;
-    const favorite = this.#card.userDetails.favorite;
 
     this.#listComments = [...this.#cardsModel.comments];
     this.#cardComponent = new FilmCardView(card);
@@ -62,15 +59,15 @@ export default class CardPresenter {
   };
 
   #handleWatchlistClick = () => {
-    this.#changeData({ ...this.#card, watch: !this.#card.userDetails.watchlist });
+    this.#changeData({ ...this.card, userDetails: { ...this.card.userDetails, watchlist: true } });
   };
 
   #handleAlreadyWatchedClick = () => {
-    this.#changeData({ ...this.#card, alreadyWatch: !this.#card.userDetails.alreadyWatched });
+    this.#changeData({ ...this.card, userDetails: { ...this.card.userDetails, alreadyWatched: true } });
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({ ...this.#card, favorite: !this.#card.userDetails.favorite });
+    this.#changeData({ ...this.card, userDetails: { ...this.card.userDetails, favorite: true } });
   };
 
   #openPopup = () => {
@@ -79,10 +76,11 @@ export default class CardPresenter {
     document.addEventListener('keydown', this.#onEscKeyDown);
   };
 
-  #closePopup = () => {
+  #closePopup = (card) => {
     siteBodyElement.removeChild(this.#popupComponent.element);
     siteBodyElement.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this.#onEscKeyDown);
+    this.#changeData(card);
   };
 
   #onEscKeyDown = (evt) => {

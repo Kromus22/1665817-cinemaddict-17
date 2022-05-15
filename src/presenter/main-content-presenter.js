@@ -93,8 +93,13 @@ export default class ContentPresenter {
   #renderTops = () => {
     render(this.#topFilmsListContainer, this.#mainComponent.element);
     render(this.#mostCommsListContainer, this.#mainComponent.element);
-    render(new FilmCardView(this.#listCards[0]), this.#topFilmsListContainer.container);
-    render(new FilmCardView(this.#listCards[0]), this.#mostCommsListContainer.container);
+
+    for (let i = 0; i < Math.min(this.#listCards.length, 2); i++) {
+      render(new FilmCardView(this.#listCards[i]), this.#topFilmsListContainer.container);
+    }
+    for (let i = 0; i < Math.min(this.#listCards.length, 2); i++) {
+      render(new FilmCardView(this.#listCards[i]), this.#mostCommsListContainer.container);
+    }
   };
 
   #renderCard = (card, place) => {

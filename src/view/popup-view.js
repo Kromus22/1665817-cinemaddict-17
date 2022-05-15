@@ -178,6 +178,6 @@ export default class PopupView extends AbstractView {
 
   #closePopupButtonHandler = (evt) => {
     evt.preventDefault();
-    this._callback.click();
+    this._callback.click(this.card);
   };
 }
