@@ -39,23 +39,22 @@ export default class CardPresenter {
     this.#popupComponent = new PopupView(card, this.#listComments);
 
     this.#cardComponent.setOpenHandler(this.#openPopup);
-    this.#cardComponent.setControlClickHandler(this.#handleControlClick);
+    this.#cardComponent.setWatchlistHandler(this.#handleWatchlistClick);
+    this.#cardComponent.setWatchedHandler(this.#handleWatchedClick);
+    this.#cardComponent.setFavoriteHandler(this.#handleFavoriteClick);
 
     this.#popupComponent.setClosePopupButtonHandler(this.#closePopup);
-    this.#popupComponent.setControlButtonClickHandler(this.#handleControlClick);
+    this.#popupComponent.setWatchlistHandler(this.#handleWatchlistClick);
+    this.#popupComponent.setWatchedHandler(this.#handleWatchedClick);
+    this.#popupComponent.setFavoriteHandler(this.#handleFavoriteClick);
 
     if (prevCardComponent === null || prevPopupComponent === null) {
       render(this.#cardComponent, this.#filmsSectionList.container);
       return;
     }
 
-    if (this.#mode === Mode.CLOSE) {
-      replace(this.#cardComponent, prevCardComponent);
-    }
-
-    if (this.#mode === Mode.OPEN) {
-      replace(this.#popupComponent, prevPopupComponent);
-    }
+    replace(this.#cardComponent, prevCardComponent);
+    replace(this.#popupComponent, prevPopupComponent);
 
     remove(prevCardComponent);
     remove(prevPopupComponent);
@@ -72,8 +71,34 @@ export default class CardPresenter {
     }
   };
 
-  #handleControlClick = (controlType) => {
-    this.#changeData({ ...this.#card, [controlType]: !this.#card[controlType] });
+  #handleWatchlistClick = () => {
+    this.#changeData({
+      ...this.#card,
+      userDetails: {
+        ...this.#card.userDetails,
+        watchlist: !this.#card.userDetails.watchlist
+      }
+    });
+  };
+
+  #handleWatchedClick = () => {
+    this.#changeData({
+      ...this.#card,
+      userDetails: {
+        ...this.#card.userDetails,
+        alreadyWatched: !this.#card.userDetails.alreadyWatched
+      }
+    });
+  };
+
+  #handleFavoriteClick = () => {
+    this.#changeData({
+      ...this.#card,
+      userDetails: {
+        ...this.#card.userDetails,
+        favorite: !this.#card.userDetails.favorite
+      }
+    });
   };
 
   #openPopup = () => {
@@ -89,6 +114,7 @@ export default class CardPresenter {
     document.removeEventListener('keydown', this.#onEscKeyDown);
     this.#changeData(card);
     this.#mode = Mode.CLOSE;
+    this.#popupComponent = null;
   };
 
   #onEscKeyDown = (evt) => {

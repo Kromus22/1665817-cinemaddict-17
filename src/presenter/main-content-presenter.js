@@ -13,7 +13,6 @@ import { updateItem } from '../utils.js';
 
 const CARD_COUNT_PER_STEP = 5;
 
-
 export default class ContentPresenter {
   #mainContainer = null;
   #cardsModel = null;
