@@ -73,7 +73,7 @@ export default class CardPresenter {
   };
 
   #handleControlClick = (controlType) => {
-    this.#changeData({ ...this.card, [controlType]: !this.card[controlType] });
+    this.#changeData({ ...this.#card, [controlType]: !this.#card[controlType] });
   };
 
   #openPopup = () => {
@@ -81,7 +81,6 @@ export default class CardPresenter {
     siteBodyElement.classList.add('hide-overflow');
     document.addEventListener('keydown', this.#onEscKeyDown);
     this.#changeMode();
-    this.#mode = Mode.OPEN;
   };
 
   #closePopup = (card) => {
@@ -95,7 +94,7 @@ export default class CardPresenter {
   #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      this.#closePopup();
+      this.#closePopup(this.#card);
       document.removeEventListener('keydown', this.#onEscKeyDown);
     }
   };
