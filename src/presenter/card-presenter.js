@@ -3,6 +3,10 @@ import PopupView from '../view/popup-view.js';
 import FilmCardView from '../view/film-card-view.js';
 
 const siteBodyElement = document.querySelector('body');
+const Mode = {
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE',
+};
 
 export default class CardPresenter {
   #filmsSectionList = null;
@@ -13,11 +17,14 @@ export default class CardPresenter {
   #cardsModel = null;
   #place = null;
   #listComments = [];
+  #changeMode = null;
+  #mode = Mode.CLOSE;
 
-  constructor(filmsSectionList, cardsModel, changeData) {
+  constructor(filmsSectionList, cardsModel, changeData, changeMode) {
     this.#filmsSectionList = filmsSectionList;
     this.#cardsModel = cardsModel;
     this.#changeData = changeData;
+    this.#changeMode = changeMode;
   }
 
   init = (card, place) => {
@@ -30,22 +37,23 @@ export default class CardPresenter {
     this.#listComments = [...this.#cardsModel.comments];
     this.#cardComponent = new FilmCardView(card);
     this.#popupComponent = new PopupView(card, this.#listComments);
+
     this.#cardComponent.setOpenHandler(this.#openPopup);
-    this.#cardComponent.setWatchlistClickHandler(this.#handleWatchlistClick);
-    this.#cardComponent.setAlreadyWatchedClickHandler(this.#handleAlreadyWatchedClick);
-    this.#cardComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+    this.#cardComponent.setControlClickHandler(this.#handleControlClick);
+
     this.#popupComponent.setClosePopupButtonHandler(this.#closePopup);
+    this.#popupComponent.setControlButtonClickHandler(this.#handleControlClick);
 
     if (prevCardComponent === null || prevPopupComponent === null) {
       render(this.#cardComponent, this.#filmsSectionList.container);
       return;
     }
 
-    if (this.#filmsSectionList.contains(prevCardComponent.element)) {
+    if (this.#mode === Mode.CLOSE) {
       replace(this.#cardComponent, prevCardComponent);
     }
 
-    if (this.#filmsSectionList.contains(prevPopupComponent.element)) {
+    if (this.#mode === Mode.OPEN) {
       replace(this.#popupComponent, prevPopupComponent);
     }
 
@@ -58,22 +66,22 @@ export default class CardPresenter {
     remove(this.#popupComponent);
   };
 
-  #handleWatchlistClick = () => {
-    this.#changeData({ ...this.card, userDetails: { ...this.card.userDetails, watchlist: true } });
+  resetView = () => {
+    if (this.#mode !== Mode.CLOSE) {
+      this.#openPopup();
+    }
   };
 
-  #handleAlreadyWatchedClick = () => {
-    this.#changeData({ ...this.card, userDetails: { ...this.card.userDetails, alreadyWatched: true } });
-  };
-
-  #handleFavoriteClick = () => {
-    this.#changeData({ ...this.card, userDetails: { ...this.card.userDetails, favorite: true } });
+  #handleControlClick = (controlType) => {
+    this.#changeData({ ...this.card, [controlType]: !this.card[controlType] });
   };
 
   #openPopup = () => {
     siteBodyElement.appendChild(this.#popupComponent.element);
     siteBodyElement.classList.add('hide-overflow');
     document.addEventListener('keydown', this.#onEscKeyDown);
+    this.#changeMode();
+    this.#mode = Mode.OPEN;
   };
 
   #closePopup = (card) => {
@@ -81,6 +89,7 @@ export default class CardPresenter {
     siteBodyElement.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this.#onEscKeyDown);
     this.#changeData(card);
+    this.#mode = Mode.CLOSE;
   };
 
   #onEscKeyDown = (evt) => {

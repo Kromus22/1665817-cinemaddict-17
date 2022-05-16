@@ -110,9 +110,9 @@ const createPopupTemplate = (card, commentsForPopup) => {
           </div>
 
           <section class="film-details__controls">
-            <button type="button" class="film-details__control-button film-details__control-button--watchlist ${watchlistCheck}" id="watchlist" name="watchlist">Add to watchlist</button>
-            <button type="button" class="film-details__control-button film-details__control-button--watched ${watchedCheck}" id="watched" name="watched">Already watched</button>
-            <button type="button" class="film-details__control-button film-details__control-button--favorite ${favoriteCheck}" id="favorite" name="favorite">Add to favorites</button>
+            <button type="button" data-control-type="watchlist" class="film-details__control-button film-details__control-button--watchlist ${watchlistCheck}" id="watchlist" name="watchlist">Add to watchlist</button>
+            <button type="button" data-control-type="watched" class="film-details__control-button film-details__control-button--watched ${watchedCheck}" id="watched" name="watched">Already watched</button>
+            <button type="button" data-control-type="favorite" class="film-details__control-button film-details__control-button--favorite ${favoriteCheck}" id="favorite" name="favorite">Add to favorites</button>
           </section>
         </div>
 
@@ -176,8 +176,21 @@ export default class PopupView extends AbstractView {
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closePopupButtonHandler);
   };
 
+  setControlButtonClickHandler = (callback) => {
+    this._callback.controlButtonClick = callback;
+    this.element.querySelector('.film-details__controls').addEventListener('click', this.#controlButtonClickHandler);
+  };
+
   #closePopupButtonHandler = (evt) => {
     evt.preventDefault();
     this._callback.click(this.card);
+  };
+
+  #controlButtonClickHandler = (evt) => {
+    if (evt.target.dataset.controlType) {
+      evt.preventDefault();
+      const controlType = evt.target.dataset.controlType;
+      this._callback.controlButtonClick(controlType);
+    }
   };
 }

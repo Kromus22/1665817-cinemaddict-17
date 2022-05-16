@@ -75,6 +75,10 @@ export default class ContentPresenter {
     this.#cardPresenter.get(updatedCard.id).init(updatedCard);
   };
 
+  #handleModeChange = () => {
+    this.#cardPresenter.forEach((presenter) => presenter.resetView());
+  };
+
   #renderSort = () => {
     render(this.#sortComponent, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
   };
@@ -103,7 +107,7 @@ export default class ContentPresenter {
   };
 
   #renderCard = (card, place) => {
-    const cardPresenter = new CardPresenter(this.#filmsSectionList, this.#cards, this.#handleCardChange);
+    const cardPresenter = new CardPresenter(this.#filmsSectionList, this.#cards, this.#handleCardChange, this.#handleModeChange);
     cardPresenter.init(card, place);
     this.#cardPresenter.set(card.id, cardPresenter);
   };
