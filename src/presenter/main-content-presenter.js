@@ -3,14 +3,15 @@ import FilmsContainerView from '../view/films-container-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import { Titles } from '../consts.js';
-import { render, remove } from '../framework/render.js';
-import PopupView from '../view/popup-view.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
+import CardPresenter from './card-presenter.js';
 import NoResultsView from '../view/no-results-view.js';
 import SortView from '../view/sorts-view.js';
+import CardsModel from '../model/cards-model.js';
+import { updateItem } from '../utils.js';
+
 
 const CARD_COUNT_PER_STEP = 5;
-
-const siteBodyElement = document.querySelector('body');
 
 export default class ContentPresenter {
   #mainContainer = null;
@@ -23,10 +24,11 @@ export default class ContentPresenter {
   #topFilmsListContainer = new FilmsContainerView(Titles.top, 'films-list--extra');
   #mostCommsListContainer = new FilmsContainerView(Titles.most, 'films-list--extra');
   #showMoreBtnComponent = new ShowMoreButtonView();
+  #cards = new CardsModel();
 
   #listCards = [];
-  #listComments = [];
   #renderCardCount = CARD_COUNT_PER_STEP;
+  #cardPresenter = new Map();
 
   constructor(mainContainer, cardsModel) {
     this.#mainContainer = mainContainer;
@@ -35,43 +37,30 @@ export default class ContentPresenter {
 
   init = () => {
     this.#listCards = [...this.#cardsModel.cards];
-    this.#listComments = [...this.#cardsModel.comments];
-
     this.#renderBoard();
   };
 
-  #renderBoard = () => {
+  #renderCards = (from, to) => {
 
-    if (!this.#listCards.length) {
-      render(this.#mainComponent, this.#mainContainer);
-      render(this.#noResultsComponent, this.#mainComponent.element);
-    } else {
-      render(this.#sortComponent, this.#mainComponent.element);
-      render(this.#mainComponent, this.#mainContainer);
-      render(this.#filmsSectionList, this.#mainComponent.element);
+    this.#listCards
+      .slice(from, to)
+      .forEach((card) => this.#renderCard(card, this.#filmsSectionList.container));
+  };
 
-      if (this.#listCards.length > CARD_COUNT_PER_STEP) {
-        render(this.#showMoreBtnComponent, this.#filmsSectionList.element);
+  #renderNoResults = () => {
+    render(this.#mainComponent, this.#mainContainer);
+    render(this.#noResultsComponent, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
+  };
 
-        this.#showMoreBtnComponent.setClickHandler(this.#handleShowMoreBtnClick);
+  #renderLoadMoreButton = () => {
 
-      }
-
-      render(this.#topFilmsListContainer, this.#mainComponent.element);
-      render(this.#mostCommsListContainer, this.#mainComponent.element);
-
-      for (let i = 0; i < Math.min(this.#listCards.length, CARD_COUNT_PER_STEP); i++) {
-        this.#renderCards(this.#listCards[i], this.#filmsSectionList.container);
-      }
-      render(new FilmCardView(this.#listCards[0]), this.#topFilmsListContainer.container);
-      render(new FilmCardView(this.#listCards[0]), this.#mostCommsListContainer.container);
-    }
+    render(this.#showMoreBtnComponent, this.#mainComponent.element);
+    this.#showMoreBtnComponent.setClickHandler(this.#handleShowMoreBtnClick);
   };
 
   #handleShowMoreBtnClick = () => {
 
-    this.#listCards.slice(this.#renderCardCount, this.#renderCardCount + CARD_COUNT_PER_STEP)
-      .forEach((card) => this.#renderCards(card, this.#filmsSectionList.container));
+    this.#renderCards(this.#renderCardCount, this.#renderCardCount + CARD_COUNT_PER_STEP);
 
     this.#renderCardCount += CARD_COUNT_PER_STEP;
 
@@ -80,38 +69,64 @@ export default class ContentPresenter {
     }
   };
 
-  #renderCards = (card, place) => {
-    const cardComponent = new FilmCardView(card);
-    const popupComponent = new PopupView(card, this.#listComments);
+  #handleCardChange = (updatedCard) => {
+    this.#listCards = updateItem(this.#listCards, updatedCard);
+    this.#cardPresenter.get(updatedCard.id).init(updatedCard);
+  };
 
-    const openPopup = () => {
-      siteBodyElement.appendChild(popupComponent.element);
-      siteBodyElement.classList.add('hide-overflow');
-    };
+  #handleModeChange = () => {
+    this.#cardPresenter.forEach((presenter) => presenter.resetView());
+  };
 
-    const closePopup = () => {
-      siteBodyElement.removeChild(popupComponent.element);
-      siteBodyElement.classList.remove('hide-overflow');
-    };
+  #renderSort = () => {
+    render(this.#sortComponent, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
+  };
 
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        closePopup();
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
-    };
+  #renderCardList = () => {
 
-    cardComponent.setOpenHandler(() => {
-      openPopup();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
+    render(this.#mainComponent, this.#mainContainer);
+    render(this.#filmsSectionList, this.#mainComponent.element);
+    this.#renderCards(0, Math.min(this.#listCards.length, CARD_COUNT_PER_STEP));
 
-    popupComponent.setClosePopupButtonHandler(() => {
-      closePopup();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
+    if (this.#listCards.length > CARD_COUNT_PER_STEP) {
+      this.#renderLoadMoreButton();
+    }
+  };
 
-    render(cardComponent, place);
+  #renderTops = () => {
+    render(this.#topFilmsListContainer, this.#mainComponent.element);
+    render(this.#mostCommsListContainer, this.#mainComponent.element);
+
+    for (let i = 0; i < Math.min(this.#listCards.length, 2); i++) {
+      render(new FilmCardView(this.#listCards[i]), this.#topFilmsListContainer.container);
+    }
+    for (let i = 0; i < Math.min(this.#listCards.length, 2); i++) {
+      render(new FilmCardView(this.#listCards[i]), this.#mostCommsListContainer.container);
+    }
+  };
+
+  #renderCard = (card, place) => {
+    const cardPresenter = new CardPresenter(this.#filmsSectionList, this.#cards, this.#handleCardChange, this.#handleModeChange);
+    cardPresenter.init(card, place);
+    this.#cardPresenter.set(card.id, cardPresenter);
+  };
+
+  #clearCardList = () => {
+    this.#cardPresenter.forEach((presenter) => presenter.destroy());
+    this.#cardPresenter.clear();
+    this.#renderCardCount = CARD_COUNT_PER_STEP;
+    remove(this.#showMoreBtnComponent);
+  };
+
+  #renderBoard = () => {
+    render(this.#mainComponent, this.#mainContainer);
+
+    if (!this.#listCards.length) {
+      this.#renderNoResults();
+    }
+
+    this.#renderSort();
+    this.#renderCardList();
+    this.#renderTops();
   };
 }

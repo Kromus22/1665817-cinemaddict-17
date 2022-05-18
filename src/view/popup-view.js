@@ -110,9 +110,9 @@ const createPopupTemplate = (card, commentsForPopup) => {
           </div>
 
           <section class="film-details__controls">
-            <button type="button" class="film-details__control-button film-details__control-button--watchlist ${watchlistCheck}" id="watchlist" name="watchlist">Add to watchlist</button>
-            <button type="button" class="film-details__control-button film-details__control-button--watched ${watchedCheck}" id="watched" name="watched">Already watched</button>
-            <button type="button" class="film-details__control-button film-details__control-button--favorite ${favoriteCheck}" id="favorite" name="favorite">Add to favorites</button>
+            <button type="button" data-control-type="watchlist" class="film-details__control-button film-details__control-button--watchlist ${watchlistCheck}" id="watchlist" name="watchlist">Add to watchlist</button>
+            <button type="button" data-control-type="watched" class="film-details__control-button film-details__control-button--watched ${watchedCheck}" id="watched" name="watched">Already watched</button>
+            <button type="button" data-control-type="favorite" class="film-details__control-button film-details__control-button--favorite ${favoriteCheck}" id="favorite" name="favorite">Add to favorites</button>
           </section>
         </div>
 
@@ -168,6 +168,7 @@ export default class PopupView extends AbstractView {
 
   get template() {
     return createPopupTemplate(this.card, this.comment);
+
   }
 
   setClosePopupButtonHandler = (callback) => {
@@ -175,8 +176,38 @@ export default class PopupView extends AbstractView {
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closePopupButtonHandler);
   };
 
+  setWatchlistHandler = (callback) => {
+    this._callback.popupWatchlistHandler = callback;
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#popupWatchlistHandler);
+  };
+
+  setWatchedHandler = (callback) => {
+    this._callback.popupWatchedHandler = callback;
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#popupWatchedHandler);
+  };
+
+  setFavoriteHandler = (callback) => {
+    this._callback.popupFavoriteHandler = callback;
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#popupFavoriteHandler);
+  };
+
   #closePopupButtonHandler = (evt) => {
     evt.preventDefault();
-    this._callback.click();
+    this._callback.click(this.card);
+  };
+
+  #popupWatchlistHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.popupWatchlistHandler();
+  };
+
+  #popupWatchedHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.popupWatchedHandler();
+  };
+
+  #popupFavoriteHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.popupFavoriteHandler();
   };
 }
