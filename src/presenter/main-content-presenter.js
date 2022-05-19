@@ -12,6 +12,7 @@ import { updateItem } from '../utils.js';
 
 
 const CARD_COUNT_PER_STEP = 5;
+const TOP_FILMS_COUNT = 2;
 
 export default class ContentPresenter {
   #mainContainer = null;
@@ -46,7 +47,7 @@ export default class ContentPresenter {
   };
 
   #renderCards = (from, to) => {
-    this.#listCards
+    this.#movies
       .slice(from, to)
       .forEach((card) => this.#renderCard(card, this.#filmsSectionList.container));
   };
@@ -57,7 +58,6 @@ export default class ContentPresenter {
   };
 
   #renderLoadMoreButton = () => {
-
     render(this.#showMoreBtnComponent, this.#mainComponent.element);
     this.#showMoreBtnComponent.setClickHandler(this.#handleShowMoreBtnClick);
   };
@@ -90,10 +90,10 @@ export default class ContentPresenter {
   #sortCards = (sortType) => {
     switch (sortType) {
       case SortType.DATE:
-        this.#movies = this.#cardsModel.cards.sortingDate;
+        this.#movies = this.#movies.sort((el, el2) => new Date(el.filmInfo.release.date).getTime() - new Date(el2.filmInfo.release.date).getTime());
         break;
       case SortType.RATING:
-        this.#movies = this.#cardsModel.cards.sortingRating;
+        this.#movies = this.#movies.sort((el, el2) => +el.filmInfo.totalRating - +el2.filmInfo.totalRating);
         break;
       default:
         this.#movies = this.#sourceCards;
@@ -109,14 +109,14 @@ export default class ContentPresenter {
 
     this.#sortCards(sortType);
     this.#clearCardList();
-    this.#renderCardList(this.#movies);
+    this.#renderCardList();
     this.#renderTops();
   };
 
-  #renderCardList = (card) => {
+  #renderCardList = () => {
     render(this.#mainComponent, this.#mainContainer);
     render(this.#filmsSectionList, this.#mainComponent.element);
-    this.#renderCards(0, Math.min(card.length, CARD_COUNT_PER_STEP));
+    this.#renderCards(0, Math.min(this.#movies.length, CARD_COUNT_PER_STEP));
 
     if (this.#listCards.length > CARD_COUNT_PER_STEP) {
       this.#renderLoadMoreButton();
@@ -127,10 +127,10 @@ export default class ContentPresenter {
     render(this.#topFilmsListContainer, this.#mainComponent.element);
     render(this.#mostCommsListContainer, this.#mainComponent.element);
 
-    for (let i = 0; i < Math.min(this.#listCards.length, 2); i++) {
+    for (let i = 0; i < Math.min(this.#listCards.length, TOP_FILMS_COUNT); i++) {
       render(new FilmCardView(this.#listCards[i]), this.#topFilmsListContainer.container);
     }
-    for (let i = 0; i < Math.min(this.#listCards.length, 2); i++) {
+    for (let i = 0; i < Math.min(this.#listCards.length, TOP_FILMS_COUNT); i++) {
       render(new FilmCardView(this.#listCards[i]), this.#mostCommsListContainer.container);
     }
   };
@@ -157,7 +157,7 @@ export default class ContentPresenter {
       this.#renderNoResults();
     }
     this.#renderSort();
-    this.#renderCardList(this.#listCards);
+    this.#renderCardList();
     this.#renderTops();
   };
 
