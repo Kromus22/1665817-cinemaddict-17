@@ -4,5 +4,11 @@ const Titles = {
   most: 'mostComm',
 };
 
+const SortType = {
+  DEFAULT: 'default',
+  DATE: 'date',
+  RATING: 'rating',
+};
 
-export { Titles };
+
+export { Titles, SortType };
