@@ -2,7 +2,7 @@ import FilmsSectionView from '../view/films-section-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
-import { Titles } from '../consts.js';
+import { Titles, SortType } from '../consts.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import CardPresenter from './card-presenter.js';
 import NoResultsView from '../view/no-results-view.js';
@@ -12,10 +12,12 @@ import { updateItem } from '../utils.js';
 
 
 const CARD_COUNT_PER_STEP = 5;
+const TOP_FILMS_COUNT = 2;
 
 export default class ContentPresenter {
   #mainContainer = null;
   #cardsModel = null;
+  #movies = [];
 
   #mainComponent = new FilmsSectionView();
   #sortComponent = new SortView();
@@ -29,10 +31,14 @@ export default class ContentPresenter {
   #listCards = [];
   #renderCardCount = CARD_COUNT_PER_STEP;
   #cardPresenter = new Map();
+  #sourceCards = [];
+  #currentSortType = SortType.DEFAULT;
 
   constructor(mainContainer, cardsModel) {
     this.#mainContainer = mainContainer;
     this.#cardsModel = cardsModel;
+    this.#movies = cardsModel.cards;
+    this.#sourceCards = [...this.#cardsModel.cards];
   }
 
   init = () => {
@@ -41,8 +47,7 @@ export default class ContentPresenter {
   };
 
   #renderCards = (from, to) => {
-
-    this.#listCards
+    this.#movies
       .slice(from, to)
       .forEach((card) => this.#renderCard(card, this.#filmsSectionList.container));
   };
@@ -53,7 +58,6 @@ export default class ContentPresenter {
   };
 
   #renderLoadMoreButton = () => {
-
     render(this.#showMoreBtnComponent, this.#mainComponent.element);
     this.#showMoreBtnComponent.setClickHandler(this.#handleShowMoreBtnClick);
   };
@@ -80,13 +84,39 @@ export default class ContentPresenter {
 
   #renderSort = () => {
     render(this.#sortComponent, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
+    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+  };
+
+  #sortCards = (sortType) => {
+    switch (sortType) {
+      case SortType.DATE:
+        this.#movies = this.#movies.sort((el, el2) => new Date(el.filmInfo.release.date).getTime() - new Date(el2.filmInfo.release.date).getTime());
+        break;
+      case SortType.RATING:
+        this.#movies = this.#movies.sort((el, el2) => +el.filmInfo.totalRating - +el2.filmInfo.totalRating);
+        break;
+      default:
+        this.#movies = this.#sourceCards;
+    }
+
+    this.#currentSortType = sortType;
+  };
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortCards(sortType);
+    this.#clearCardList();
+    this.#renderCardList();
+    this.#renderTops();
   };
 
   #renderCardList = () => {
-
     render(this.#mainComponent, this.#mainContainer);
     render(this.#filmsSectionList, this.#mainComponent.element);
-    this.#renderCards(0, Math.min(this.#listCards.length, CARD_COUNT_PER_STEP));
+    this.#renderCards(0, Math.min(this.#movies.length, CARD_COUNT_PER_STEP));
 
     if (this.#listCards.length > CARD_COUNT_PER_STEP) {
       this.#renderLoadMoreButton();
@@ -97,10 +127,10 @@ export default class ContentPresenter {
     render(this.#topFilmsListContainer, this.#mainComponent.element);
     render(this.#mostCommsListContainer, this.#mainComponent.element);
 
-    for (let i = 0; i < Math.min(this.#listCards.length, 2); i++) {
+    for (let i = 0; i < Math.min(this.#listCards.length, TOP_FILMS_COUNT); i++) {
       render(new FilmCardView(this.#listCards[i]), this.#topFilmsListContainer.container);
     }
-    for (let i = 0; i < Math.min(this.#listCards.length, 2); i++) {
+    for (let i = 0; i < Math.min(this.#listCards.length, TOP_FILMS_COUNT); i++) {
       render(new FilmCardView(this.#listCards[i]), this.#mostCommsListContainer.container);
     }
   };
@@ -115,6 +145,8 @@ export default class ContentPresenter {
     this.#cardPresenter.forEach((presenter) => presenter.destroy());
     this.#cardPresenter.clear();
     this.#renderCardCount = CARD_COUNT_PER_STEP;
+    remove(this.#topFilmsListContainer);
+    remove(this.#mostCommsListContainer);
     remove(this.#showMoreBtnComponent);
   };
 
@@ -124,9 +156,9 @@ export default class ContentPresenter {
     if (!this.#listCards.length) {
       this.#renderNoResults();
     }
-
     this.#renderSort();
     this.#renderCardList();
     this.#renderTops();
   };
+
 }

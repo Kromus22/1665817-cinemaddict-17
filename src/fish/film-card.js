@@ -81,6 +81,15 @@ const CommsAutors = [
   'Nick Name',
 ];
 
+const Dates = [
+  '2019-05-11T00:00:00.000Z',
+  '2019-05-15T00:00:00.000Z',
+  '2020-07-06T00:00:00.000Z',
+  '2019-11-25T00:00:00.000Z',
+  '2018-11-25T00:00:00.000Z',
+  '2017-11-25T00:00:00.000Z',
+];
+
 const generateRandomItem = (item) => {
 
 
@@ -120,7 +129,7 @@ export const generateCard = () => ({
       'Morgan Freeman'
     ],
     'release': {
-      'date': '2019-05-11T00:00:00.000Z',
+      'date': generateRandomItem(Dates),
       'releaseCountry': generateRandomItem(Countries),
     },
     'runtime': getRandomInteger(20, 245),
