@@ -175,7 +175,6 @@ export default class PopupView extends AbstractStatefulView {
 
   get template() {
     return createPopupTemplate(this._state, this.#comment);
-
   }
 
   _restoreHandlers = () => {
@@ -211,16 +210,37 @@ export default class PopupView extends AbstractStatefulView {
   #popupWatchlistHandler = (evt) => {
     evt.preventDefault();
     this._callback.popupWatchlistHandler();
+    this.updateElement({
+      ...this._state,
+      userDetails: {
+        ...this._state.userDetails,
+        watchlist: this._state.userDetails.watchlist
+      }
+    });
   };
 
   #popupWatchedHandler = (evt) => {
     evt.preventDefault();
     this._callback.popupWatchedHandler();
+    this.updateElement({
+      ...this._state,
+      userDetails: {
+        ...this._state.userDetails,
+        alreadyWatched: this._state.userDetails.alreadyWatched
+      }
+    });
   };
 
   #popupFavoriteHandler = (evt) => {
     evt.preventDefault();
     this._callback.popupFavoriteHandler();
+    this.updateElement({
+      ...this._state,
+      userDetails: {
+        ...this._state.userDetails,
+        favorite: this._state.userDetails.favorite
+      }
+    });
   };
 
   #convertCardToState = (card) => ({
@@ -250,11 +270,6 @@ export default class PopupView extends AbstractStatefulView {
       emojiForComm: evt.target.value,
       scrollTop: this.element.scrollTop
     });
-    this.element.querySelectorAll('.film-details__emoji-item')
-      .forEach((elem) => {
-        elem.checked = false;
-      });
-    evt.target.checked = true;
     this.#restorePosition();
   };
 

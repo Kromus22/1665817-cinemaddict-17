@@ -53,7 +53,7 @@ export default class CardPresenter {
 
     if (this.#mode === Mode.OPEN) {
       if (prevPopupComponent) {
-        replace(this.#popupComponent, prevPopupComponent);
+        //replace(this.#popupComponent, prevPopupComponent);
         remove(prevPopupComponent);
       } else {
         this.#openPopup();
@@ -115,7 +115,7 @@ export default class CardPresenter {
 
   #openPopup = () => {
     this.#changeMode();
-    this.#createPopup();
+    this.#createPopup(this.prevPopupComponent);
     siteBodyElement.appendChild(this.#popupComponent.element);
     siteBodyElement.classList.add('hide-overflow');
     document.addEventListener('keydown', this.#onEscKeyDown);
