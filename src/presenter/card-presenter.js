@@ -37,7 +37,6 @@ export default class CardPresenter {
 
     this.#listComments = [...this.#cardsModel.comments];
     this.#cardComponent = new FilmCardView(card);
-    this.#createPopup();
 
 
     this.#cardComponent.setOpenHandler(this.#openPopup);
@@ -52,16 +51,10 @@ export default class CardPresenter {
     replace(this.#cardComponent, prevCardComponent);
 
     if (this.#mode === Mode.OPEN) {
-      if (prevPopupComponent) {
-        //replace(this.#popupComponent, prevPopupComponent);
-        remove(prevPopupComponent);
-      } else {
-        this.#openPopup();
-      }
+      if (!prevPopupComponent) { this.#openPopup(); }
     }
 
     remove(prevCardComponent);
-    remove(prevPopupComponent);
   };
 
   destroy = () => {

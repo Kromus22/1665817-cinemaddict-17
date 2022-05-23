@@ -183,7 +183,7 @@ export default class PopupView extends AbstractStatefulView {
   };
 
   setClosePopupButtonHandler = (callback) => {
-    this._callback.click = callback;
+    this._callback.closePopupButtonHandler = callback;
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closePopupButtonHandler);
   };
 
@@ -204,7 +204,7 @@ export default class PopupView extends AbstractStatefulView {
 
   #closePopupButtonHandler = (evt) => {
     evt.preventDefault();
-    this._callback.click(this.card);
+    this._callback.closePopupButtonHandler();
   };
 
   #popupWatchlistHandler = (evt) => {
@@ -214,8 +214,9 @@ export default class PopupView extends AbstractStatefulView {
       ...this._state,
       userDetails: {
         ...this._state.userDetails,
-        watchlist: this._state.userDetails.watchlist
-      }
+        watchlist: !this._state.userDetails.watchlist
+      },
+      scrollTop: this.element.scrollTop
     });
   };
 
@@ -226,8 +227,9 @@ export default class PopupView extends AbstractStatefulView {
       ...this._state,
       userDetails: {
         ...this._state.userDetails,
-        alreadyWatched: this._state.userDetails.alreadyWatched
-      }
+        alreadyWatched: !this._state.userDetails.alreadyWatched
+      },
+      scrollTop: this.element.scrollTop
     });
   };
 
@@ -238,8 +240,9 @@ export default class PopupView extends AbstractStatefulView {
       ...this._state,
       userDetails: {
         ...this._state.userDetails,
-        favorite: this._state.userDetails.favorite
-      }
+        favorite: !this._state.userDetails.favorite
+      },
+      scrollTop: this.element.scrollTop
     });
   };
 
@@ -259,18 +262,12 @@ export default class PopupView extends AbstractStatefulView {
     return card;
   };
 
-  #restorePosition = () => {
-    this.element.scrollTop = this._state.scrollTop;
-    this.element.querySelector('.film-details__comment-input').scrollTop = this._state.localCommentScrollTop;
-  };
-
   #localCommentEmojiClickHandler = (evt) => {
     evt.preventDefault();
     this.updateElement({
       emojiForComm: evt.target.value,
       scrollTop: this.element.scrollTop
     });
-    this.#restorePosition();
   };
 
   #localCommentInputHandler = (evt) => {
@@ -279,7 +276,6 @@ export default class PopupView extends AbstractStatefulView {
       commentText: evt.target.value,
       scrollTop: this.element.scrollTop,
     });
-    this.#restorePosition();
   };
 
   #setInnerHandlers = () => {
@@ -290,7 +286,7 @@ export default class PopupView extends AbstractStatefulView {
   };
 
   #setOuterHandlers = () => {
-    this.setClosePopupButtonHandler(this._callback.click);
+    this.setClosePopupButtonHandler(this._callback.closePopupButtonHandler);
     this.setWatchlistHandler(this._callback.popupWatchlistHandler);
     this.setWatchedHandler(this._callback.popupWatchedHandler);
     this.setFavoriteHandler(this._callback.popupFavoriteHandler);
