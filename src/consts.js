@@ -10,5 +10,4 @@ const SortType = {
   RATING: 'rating',
 };
 
-
 export { Titles, SortType };
