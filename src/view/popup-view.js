@@ -82,11 +82,11 @@ const createPopupTemplate = (card, commentsForPopup) => {
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Writers</td>
-                  <td class="film-details__cell">${filmInfo.writers}</td>
+                  <td class="film-details__cell">${filmInfo.writers.map((writer) => writer).join(', ')}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Actors</td>
-                  <td class="film-details__cell">${filmInfo.actors}</td>
+                  <td class="film-details__cell">${filmInfo.actors.map((actor) => actor).join(', ')}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Release Date</td>

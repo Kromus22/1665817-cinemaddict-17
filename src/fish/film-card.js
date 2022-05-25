@@ -88,6 +88,9 @@ const Dates = [
   '2019-11-25T00:00:00.000Z',
   '2018-11-25T00:00:00.000Z',
   '2017-11-25T00:00:00.000Z',
+  '2022-05-25T00:00:00.000Z',
+  '2022-05-24T00:00:00.000Z',
+  '2022-05-22T00:00:00.000Z',
 ];
 
 const generateRandomItem = (item) => {
@@ -123,9 +126,11 @@ export const generateCard = () => ({
     'ageRating': generateRandomItem(Ages),
     'director': generateRandomItem(Directors),
     'writers': [
+      'Takeshi Kitano',
       'Takeshi Kitano'
     ],
     'actors': [
+      'Morgan Freeman',
       'Morgan Freeman'
     ],
     'release': {
@@ -150,6 +155,6 @@ export const generateComment = () => ({
   'id': idComm++,
   'author': generateRandomItem(CommsAutors),
   'comment': generateRandomItem(Comments),
-  'date': '2019-05-11T16:12:32.554Z',
+  'date': generateRandomItem(Dates),
   'emotion': generateRandomItem(Emoji),
 });
