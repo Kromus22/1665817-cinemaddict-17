@@ -1,8 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizePopupDate, humanizeCommDate } from '../utils.js';
+import { getRandomInteger } from '../utils.js';
 
 const createPopupTemplate = (card, commentsForPopup) => {
-  const { comments, filmInfo, userDetails } = card;
+  const { id, comments, filmInfo, userDetails } = card;
 
   const releaseDate = filmInfo.release.date !== null
     ? humanizePopupDate(filmInfo.release.date)
@@ -29,7 +30,7 @@ const createPopupTemplate = (card, commentsForPopup) => {
 
   const idCommentsThisFilm = commentsForPopup.filter(({ id }) => comments.some((idComm) => idComm === Number(id)));
 
-  const commentsForFilm = () => idCommentsThisFilm.map(({ author, comment, date, emotion }) =>
+  const commentsForFilm = () => idCommentsThisFilm.map(({ id, author, comment, date, emotion }) =>
     `<li class="film-details__comment">
         <span class="film-details__comment-emoji">
           <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
@@ -39,7 +40,7 @@ const createPopupTemplate = (card, commentsForPopup) => {
           <p class="film-details__comment-info">
             <span class="film-details__comment-author">${author}</span>
             <span class="film-details__comment-day">${humanizeCommDate(date)}</span>
-            <button class="film-details__comment-delete">Delete</button>
+            <button class="film-details__comment-delete" data-comment-id=${id}>Delete</button>
           </p>
         </div>
       </li>`
@@ -50,7 +51,7 @@ const createPopupTemplate = (card, commentsForPopup) => {
     : '';
 
   return (`
-    <section class="film-details">
+    <section class="film-details" data-film-id=${id}>
       <form class="film-details__inner" action="" method="get">
         <div class="film-details__top-container">
           <div class="film-details__close">
@@ -163,6 +164,15 @@ const createPopupTemplate = (card, commentsForPopup) => {
     </section>
   `);
 };
+
+const createNewCommentTemplate = (evt) => ({
+  'id': `${getRandomInteger(349, 400)}`,
+  'author': 'Some Guy',
+  'comment': evt.target.value,
+  'date': new Date(),
+  'emotion': 'smile'
+});
+
 export default class PopupView extends AbstractStatefulView {
   #comment = null;
 
@@ -278,6 +288,31 @@ export default class PopupView extends AbstractStatefulView {
     });
   };
 
+  setCommentDeleteClickHandler = (callback) => {
+    this._callback.commentDeleteClick = callback;
+    this.element.querySelector('.film-details__comments-list').addEventListener('click', this.#commentDeleteClickHandler);
+  };
+
+  #commentDeleteClickHandler = (evt) => {
+    if (evt.target.nodeName === 'BUTTON') {
+      evt.preventDefault();
+      this._callback.commentDeleteClick(evt.target.dataset.commentId);
+    }
+  };
+
+  setformSubmitHandler = (callback) => {
+    this._callback.commentFormSubmit = callback;
+    this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#formSubmitHandler);
+  };
+
+  #formSubmitHandler = (evt) => {
+    if ((evt.keyCode === 10 || evt.keyCode === 13) && (evt.ctrlKey || evt.metaKey)) {
+      evt.preventDefault();
+      this._callback.commentFormSubmit(createNewCommentTemplate(evt));
+      evt.target.value = '';
+    }
+  };
+
   #setInnerHandlers = () => {
     this.element.querySelectorAll('.film-details__emoji-item')
       .forEach((element) => element.addEventListener('click', this.#localCommentEmojiClickHandler));
@@ -290,5 +325,7 @@ export default class PopupView extends AbstractStatefulView {
     this.setWatchlistHandler(this._callback.popupWatchlistHandler);
     this.setWatchedHandler(this._callback.popupWatchedHandler);
     this.setFavoriteHandler(this._callback.popupFavoriteHandler);
+    this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
+    this.setformSubmitHandler(this._callback.commentFormSubmit);
   };
 }

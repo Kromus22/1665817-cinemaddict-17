@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { FilterType } from './consts.js';
+
 dayjs.extend(relativeTime);
 const TWO_DAYS_MILLISECONDS = 172800000;
 
@@ -24,17 +26,11 @@ const humanizeCommDate = (date) => {
 const isFilmChecked = (check) => Object.values(check).some(Boolean);
 
 const filters = {
-  watchlist: (cards) => cards.filter((card) => card.userDetails.watchlist).length,
-  watched: (cards) => cards.filter((card) => card.userDetails.alreadyWatched).length,
-  favorite: (cards) => cards.filter((card) => card.userDetails.favorite).length,
+  [FilterType.ALL]: (movies) => movies,
+  [FilterType.WATCHLIST]: (movies) => movies.filter(({ userDetails }) => userDetails.watchlist === true),
+  [FilterType.HISTORY]: (movies) => movies.filter(({ userDetails }) => userDetails.alreadyWatched === true),
+  [FilterType.FAVORITES]: (movies) => movies.filter(({ userDetails }) => userDetails.favorite === true),
 };
-
-const getFilters = (cards) => Object.entries(filters).map(([filterName, countFilms]) => (
-  {
-    name: filterName,
-    count: countFilms(cards),
-  }
-));
 
 const updateItem = (items, update) => {
   const index = items.findIndex((item) => item.id === update.id);
@@ -51,4 +47,4 @@ const updateItem = (items, update) => {
 };
 
 
-export { getRandomInteger, humanizeDate, getRandomNumber, isFilmChecked, humanizePopupDate, humanizeCommDate, getFilters, updateItem };
+export { getRandomInteger, humanizeDate, getRandomNumber, isFilmChecked, humanizePopupDate, humanizeCommDate, filters, updateItem };

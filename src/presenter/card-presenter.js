@@ -1,6 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import PopupView from '../view/popup-view.js';
 import FilmCardView from '../view/film-card-view.js';
+import { UpdateType } from '../consts.js';
 
 const siteBodyElement = document.querySelector('body');
 const Mode = {
@@ -20,12 +21,14 @@ export default class CardPresenter {
   #listComments = [];
   #changeMode = null;
   #mode = Mode.CLOSE;
+  #filterModel = null;
 
-  constructor(filmsSectionList, cardsModel, changeData, changeMode) {
+  constructor(filmsSectionList, cardsModel, changeData, changeMode, filterModel) {
     this.#filmsSectionList = filmsSectionList;
     this.#cardsModel = cardsModel;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
+    this.#filterModel = filterModel;
   }
 
   init = (card, place) => {
@@ -74,10 +77,13 @@ export default class CardPresenter {
     this.#popupComponent.setWatchlistHandler(this.#handleWatchlistClick);
     this.#popupComponent.setWatchedHandler(this.#handleWatchedClick);
     this.#popupComponent.setFavoriteHandler(this.#handleFavoriteClick);
+    this.#popupComponent.setCommentDeleteClickHandler(this.#onCommentDeleteClick);
+    this.#popupComponent.setformSubmitHandler(this.#onCommentFormSubmit);
   };
 
   #handleWatchlistClick = () => {
-    this.#changeData({
+    this.#cardsModel.founded = true;
+    this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR, {
       ...this.#card,
       userDetails: {
         ...this.#card.userDetails,
@@ -87,7 +93,8 @@ export default class CardPresenter {
   };
 
   #handleWatchedClick = () => {
-    this.#changeData({
+    this.#cardsModel.founded = true;
+    this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR, {
       ...this.#card,
       userDetails: {
         ...this.#card.userDetails,
@@ -97,12 +104,31 @@ export default class CardPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({
+    this.#cardsModel.founded = true;
+    this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR, {
       ...this.#card,
       userDetails: {
         ...this.#card.userDetails,
         favorite: !this.#card.userDetails.favorite
       }
+    });
+  };
+
+  #onCommentDeleteClick = (deletedCommentId) => {
+    this.#cardsModel.founded = true;
+    this.#changeData(UpdateType.MAJOR, {
+      ...this.#card,
+      comments: [...this.#card.comments.filter((item) => item !== deletedCommentId)],
+      deletedCommentId: deletedCommentId, newComment: ''
+    });
+  };
+
+  #onCommentFormSubmit = (newComment) => {
+    this.#cardsModel.founded = true;
+    this.#changeData(UpdateType.MAJOR, {
+      ...this.#card,
+      comments: [...this.#card.comments, newComment.id],
+      newComment: newComment, deletedCommentId: ''
     });
   };
 

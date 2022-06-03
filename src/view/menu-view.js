@@ -1,25 +1,43 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { getFilters } from '../utils.js';
 
-const createFilterItemTemplate = (filter) => `<a href="#${filter.name}" class="main-navigation__item">${filter.name.charAt(0).toUpperCase() + filter.name.slice(1)} <span class="main-navigation__item-count">${filter.count}</span></a>`;
+const createFilterItemTemplate = (filter, currentFilterType) => {
+  const { type, name, count } = filter;
+  return (
+    `<a href="#${type}" class="main-navigation__item ${type === currentFilterType ? 'main-navigation__item--active' : ''}">
+      ${type === 'all' ? `${name} movies` : name} ${count > 0 && type !== 'all' ? `<span class="main-navigation__item-count">${count}</span>` : ''}</a>`
+  );
+};
 
-const createMenuTemplate = (filters) => (`
-  <nav class="main-navigation">
-    <a href="#all" class="main-navigation__item main-navigation__item--active"> All movies</a>
-    ${filters.map((filter) => createFilterItemTemplate(filter)).join('')}
-  </nav>
-  `);
+const createMenuTemplate = (filterItems, currentFilterType) => {
+  const filterItemsTemplate = filterItems
+    .map((filter) => createFilterItemTemplate(filter, currentFilterType))
+    .join('');
+
+  return `<nav class="main-navigation">${filterItemsTemplate}</nav>`;
+};
 
 export default class MenuView extends AbstractView {
-  #filters = [];
+  #filters = null;
+  #currentFilter = null;
 
-  constructor(cards) {
+  constructor(filters, currentFilterType) {
     super();
-    this.#filters = getFilters(cards);
+    this.#filters = filters;
+    this.#currentFilter = currentFilterType;
   }
 
   get template() {
-    return createMenuTemplate(this.#filters);
+    return createMenuTemplate(this.#filters, this.#currentFilter);
   }
+
+  setFilterTypeChangeHandler = (callback) => {
+    this._callback.filterTypeChange = callback;
+    this.element.addEventListener('click', this.#filterTypeChangeHandler);
+  };
+
+  #filterTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    if (evt.target.nodeName === 'A') { this._callback.filterTypeChange(evt.target.href.split('#')[1]); }
+  };
 
 }

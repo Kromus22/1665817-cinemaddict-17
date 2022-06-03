@@ -1,8 +1,9 @@
 import { render } from './framework/render.js';
-import MenuView from './view/menu-view.js';
 import ProfileView from './view/profile-view.js';
 import ContentPresenter from './presenter/main-content-presenter.js';
 import FooterStats from './view/footer-stats-view.js';
+import FilterModel from './model/filter-model.js';
+import FilterPresenter from './presenter/menu-presenter.js';
 
 import CardsModel from './model/cards-model.js';
 
@@ -12,13 +13,15 @@ const siteFooterElement = document.querySelector('.footer');
 
 
 const cardsModel = new CardsModel();
-const contentPresenter = new ContentPresenter(siteMainElement, cardsModel);
+const filterModel = new FilterModel();
+const contentPresenter = new ContentPresenter(siteMainElement, cardsModel, filterModel);
+const filterPresenter = new FilterPresenter(siteMainElement, filterModel, cardsModel);
 
 render(new ProfileView(), siteHeaderElement);
-render(new MenuView(cardsModel.cards), siteMainElement);
 
 
 contentPresenter.init();
+filterPresenter.init();
 
 render(new FooterStats(), siteFooterElement);
 
