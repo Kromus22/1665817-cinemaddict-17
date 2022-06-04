@@ -16,11 +16,11 @@ const createFilmsSectionTemplate = (title, extra) => {
   }
   const sectionTitle = () => {
     switch (title) {
-      case Titles.com:
+      case Titles.COM:
         return SectionType.common;
-      case Titles.top:
+      case Titles.TOP:
         return SectionType.topRated;
-      case Titles.most:
+      case Titles.MOST:
         return SectionType.mostComm;
     }
   };

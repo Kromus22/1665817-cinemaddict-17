@@ -1,6 +1,7 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizePopupDate, humanizeCommDate } from '../utils.js';
 import { getRandomInteger } from '../utils.js';
+import he from 'he';
 
 const createPopupTemplate = (card, commentsForPopup) => {
   const { id, comments, filmInfo, userDetails } = card;
@@ -36,7 +37,7 @@ const createPopupTemplate = (card, commentsForPopup) => {
           <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
         </span>
         <div>
-          <p class="film-details__comment-text">${comment}</p>
+          <p class="film-details__comment-text">${he.encode(comment)}</p>
           <p class="film-details__comment-info">
             <span class="film-details__comment-author">${author}</span>
             <span class="film-details__comment-day">${humanizeCommDate(date)}</span>

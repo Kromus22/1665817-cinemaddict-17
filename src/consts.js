@@ -1,7 +1,7 @@
 const Titles = {
-  com: 'common',
-  top: 'topRated',
-  most: 'mostComm',
+  COM: 'common',
+  TOP: 'topRated',
+  MOST: 'mostComm',
 };
 
 const SortType = {

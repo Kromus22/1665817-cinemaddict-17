@@ -2,12 +2,13 @@ import FilmsSectionView from '../view/films-section-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
-import { Titles, SortType, UpdateType } from '../consts.js';
+import { Titles, SortType, UpdateType, FilterType } from '../consts.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import CardPresenter from './card-presenter.js';
 import NoResultsView from '../view/no-results-view.js';
 import SortView from '../view/sorts-view.js';
 import CardsModel from '../model/cards-model.js';
+import { sortDateDown, sortRatingDown, filters } from '../utils.js';
 
 
 const CARD_COUNT_PER_STEP = 5;
@@ -20,10 +21,10 @@ export default class ContentPresenter {
   #noResultsComponent = null;
 
   #mainComponent = new FilmsSectionView();
-  #sortComponent = new SortView();
-  #filmsSectionList = new FilmsContainerView(Titles.com);
-  #topFilmsListContainer = new FilmsContainerView(Titles.top, 'films-list--extra');
-  #mostCommsListContainer = new FilmsContainerView(Titles.most, 'films-list--extra');
+  #sortComponent = null;
+  #filmsSectionList = new FilmsContainerView(Titles.COM);
+  #topFilmsListContainer = new FilmsContainerView(Titles.TOP, 'films-list--extra');
+  #mostCommsListContainer = new FilmsContainerView(Titles.MOST, 'films-list--extra');
   #showMoreBtnComponent = new ShowMoreButtonView();
   #cards = new CardsModel();
 
@@ -33,6 +34,7 @@ export default class ContentPresenter {
   #sourceCards = [];
   #currentSortType = SortType.DEFAULT;
   #filterModel = null;
+  #filterType = FilterType.ALL;
 
   constructor(mainContainer, cardsModel, filterModel) {
     this.#mainContainer = mainContainer;
@@ -46,14 +48,18 @@ export default class ContentPresenter {
   }
 
   get cards() {
+    this.#filterType = this.#filterModel.filter;
+    const cards = this.#cardsModel.cards;
+    const filteredCards = filters[this.#filterType](cards);
+
     switch (this.#currentSortType) {
       case SortType.DATE:
-        return [...this.#cardsModel.cards].sort((el, el2) => new Date(el.filmInfo.release.date).getTime() - new Date(el2.filmInfo.release.date).getTime());
+        return filteredCards.sort(sortDateDown);
       case SortType.RATING:
-        return [...this.#cardsModel.cards].sort((el, el2) => +el.filmInfo.totalRating - +el2.filmInfo.totalRating);
+        return filteredCards.sort(sortRatingDown);
     }
 
-    return this.#cardsModel.cards;
+    return filteredCards;
   }
 
   init = () => {
@@ -64,9 +70,9 @@ export default class ContentPresenter {
     cards.forEach((card) => this.#renderCard(card));
   };
 
-  #renderNoResults = (currentFilter) => {
+  #renderNoResults = () => {
     render(this.#mainComponent, this.#mainContainer);
-    this.#noResultsComponent = new NoResultsView(currentFilter);
+    this.#noResultsComponent = new NoResultsView(this.#filterType);
     render(this.#noResultsComponent, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
   };
 
@@ -77,7 +83,7 @@ export default class ContentPresenter {
 
   #handleShowMoreBtnClick = () => {
     const cardsCount = this.cards.length;
-    const newRernderedCardCount = Math.min(cardsCount, this.#renderCardCount + CARD_COUNT_PER_STEP);
+    const newRernderedCardCount = Math.min(cardsCount, (this.#renderCardCount + CARD_COUNT_PER_STEP));
     const cards = this.cards.slice(this.#renderCardCount, newRernderedCardCount);
 
     this.#renderCards(cards);
@@ -99,8 +105,9 @@ export default class ContentPresenter {
   };
 
   #renderSort = () => {
-    render(this.#sortComponent, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
+    this.#sortComponent = new SortView(this.#currentSortType);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+    render(this.#sortComponent, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -109,9 +116,8 @@ export default class ContentPresenter {
     }
 
     this.#currentSortType = sortType;
-    this.#clearCardList();
-    this.#renderCardList();
-    this.#renderTops();
+    this.#clearCardList({ resetRenderedCardsCount: true });
+    this.#renderBoard();
   };
 
   #renderCardList = () => {
@@ -145,35 +151,30 @@ export default class ContentPresenter {
     this.#cardPresenter.set(card.id, cardPresenter);
   };
 
-  #clearCardList = ({ resetRenderedCardsCount = false, resetSortType = false, renderTop = false } = {}) => {
-    if (resetSortType) {
-      this.#currentSortType = SortType.DEFAULT;
-    }
-    if (this.cards.length === 0) {
-      remove(this.#noResultsComponent);
-      remove(this.#sortComponent);
-      this.#renderNoResults(this.#filterModel.filter);
-    } else {
-      remove(this.#noResultsComponent);
-      this.#renderSort();
-    }
+  #clearCardList = ({ resetRenderedCardsCount = false, resetSortType = false } = {}) => {
 
     const cardsCount = this.cards.length;
-
-    if (renderTop) {
-      remove(this.#topFilmsListContainer);
-      remove(this.#mostCommsListContainer);
-    }
 
     this.#cardPresenter.forEach((presenter) => presenter.destroy());
     this.#cardPresenter.clear();
 
+    remove(this.#sortComponent);
     remove(this.#showMoreBtnComponent);
+    remove(this.#topFilmsListContainer);
+    remove(this.#mostCommsListContainer);
+
+    if (this.#noResultsComponent) {
+      remove(this.#noResultsComponent);
+    }
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DEFAULT;
+    }
 
     if (resetRenderedCardsCount) {
       this.#renderCardCount = CARD_COUNT_PER_STEP;
     } else {
-      this.#renderCardCount = cardsCount;
+      this.#renderCardCount = Math.min(cardsCount, this.#renderCardCount);
     }
   };
 
@@ -182,6 +183,7 @@ export default class ContentPresenter {
 
     if (!this.cards.length) {
       this.#renderNoResults();
+      return;
     }
     this.#renderSort();
     this.#renderCardList();
@@ -191,18 +193,15 @@ export default class ContentPresenter {
   #handleMovieEvent = (updateType, update) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        if (this.#cardPresenter.get(update.id)) {
-          this.#cardPresenter.get(update.id).init(update);
-        }
+        this.#cardPresenter.get(update.id).init(update);
         break;
       case UpdateType.MINOR:
-        this.#clearCardList({ resetRenderedCardsCount: true });
-        this.#renderCardList();
+        this.#clearCardList();
+        this.#renderBoard();
         break;
       case UpdateType.MAJOR:
-        this.#clearCardList({ resetRenderedCardsCount: false, resetSortType: true, renderTop: true });
-        this.#renderCardList();
-        this.#renderTops();
+        this.#clearCardList({ resetRenderedCardsCount: true, resetSortType: true });
+        this.#renderBoard();
         break;
     }
   };

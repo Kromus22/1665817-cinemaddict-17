@@ -4,7 +4,6 @@ import ContentPresenter from './presenter/main-content-presenter.js';
 import FooterStats from './view/footer-stats-view.js';
 import FilterModel from './model/filter-model.js';
 import FilterPresenter from './presenter/menu-presenter.js';
-
 import CardsModel from './model/cards-model.js';
 
 const siteMainElement = document.querySelector('.main');
@@ -19,10 +18,9 @@ const filterPresenter = new FilterPresenter(siteMainElement, filterModel, cardsM
 
 render(new ProfileView(), siteHeaderElement);
 
-
-contentPresenter.init();
 filterPresenter.init();
+contentPresenter.init();
 
-render(new FooterStats(), siteFooterElement);
+render(new FooterStats(cardsModel.cards.length), siteFooterElement);
 
 

@@ -32,6 +32,32 @@ const filters = {
   [FilterType.FAVORITES]: (movies) => movies.filter(({ userDetails }) => userDetails.favorite === true),
 };
 
+const getWeightForNullDate = (dateA, dateB) => {
+  if (dateA === null && dateB === null) {
+    return 0;
+  }
+
+  if (dateA === null) {
+    return 1;
+  }
+
+  if (dateB === null) {
+    return -1;
+  }
+
+  return null;
+};
+
+const sortDateDown = (filmA, filmB) => {
+  const weight = getWeightForNullDate(filmA.filmInfo.release.date, filmB.filmInfo.release.date);
+
+  return weight ?? dayjs(filmB.filmInfo.release.date).diff(dayjs(filmA.filmInfo.release.date));
+};
+
+const sortRatingDown = (filmA, filmB) =>
+  +filmB.filmInfo.totalRating - +filmA.filmInfo.totalRating;
+
+
 const updateItem = (items, update) => {
   const index = items.findIndex((item) => item.id === update.id);
 
@@ -47,4 +73,4 @@ const updateItem = (items, update) => {
 };
 
 
-export { getRandomInteger, humanizeDate, getRandomNumber, isFilmChecked, humanizePopupDate, humanizeCommDate, filters, updateItem };
+export { sortDateDown, sortRatingDown, getRandomInteger, humanizeDate, getRandomNumber, isFilmChecked, humanizePopupDate, humanizeCommDate, filters, updateItem };
