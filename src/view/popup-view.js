@@ -324,7 +324,11 @@ export default class PopupView extends AbstractStatefulView {
 
       this.element.scrollTo = scrollPosition;
 
-      const update = { ...PopupView.this.#convertStateToCard(this._state), comment: [...this._state.comment, createNewCommentTemplate.id] };
+      const update = {
+        ...this.#convertStateToCard(this._state),
+        comments: [...this._state.comments, +createNewCommentTemplate.id],
+        newComment: createNewCommentTemplate
+      };
 
       this._callback.commentFormSubmit(update, createNewCommentTemplate);
     }

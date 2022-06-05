@@ -17,7 +17,6 @@ const TOP_FILMS_COUNT = 2;
 export default class ContentPresenter {
   #mainContainer = null;
   #cardsModel = null;
-  #movies = [];
   #noResultsComponent = null;
 
   #mainComponent = new FilmsSectionView();
@@ -31,7 +30,6 @@ export default class ContentPresenter {
   #listCards = [];
   #renderCardCount = CARD_COUNT_PER_STEP;
   #cardPresenter = new Map();
-  #sourceCards = [];
   #currentSortType = SortType.DEFAULT;
   #filterModel = null;
   #filterType = FilterType.ALL;
@@ -39,8 +37,6 @@ export default class ContentPresenter {
   constructor(mainContainer, cardsModel, filterModel) {
     this.#mainContainer = mainContainer;
     this.#cardsModel = cardsModel;
-    this.#movies = cardsModel.cards;
-    this.#sourceCards = [...this.#cardsModel.cards];
     this.#cardsModel.founded = false;
     this.#filterModel = filterModel;
     this.#cardsModel.addObserver(this.#handleMovieEvent);
@@ -146,7 +142,7 @@ export default class ContentPresenter {
   };
 
   #renderCard = (card, place) => {
-    const cardPresenter = new CardPresenter(this.#filmsSectionList, this.#cards, this.#handleViewAction, this.#handleModeChange, this.#filterModel);
+    const cardPresenter = new CardPresenter(this.#filmsSectionList, this.#handleViewAction, this.#handleModeChange, this.#filterModel, this.#cardsModel);
     cardPresenter.init(card, place);
     this.#cardPresenter.set(card.id, cardPresenter);
   };

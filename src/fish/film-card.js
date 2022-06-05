@@ -117,7 +117,7 @@ let idComm = 0;
 
 export const generateCard = () => ({
   'id': nanoid(),
-  'comments': [201, 215, 234, 223, 348],
+  'comments': [101, 115, 134, 123, 48],
   'filmInfo': {
     'title': generateRandomItem(Titles),
     'alternativeTitle': 'Laziness Who Sold Themselves',

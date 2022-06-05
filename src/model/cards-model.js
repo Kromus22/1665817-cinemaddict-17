@@ -29,7 +29,7 @@ export default class CardsModel extends Observable {
   };
 
   deleteComment = (updateType, update) => {
-    const index = this.#comments.findIndex((comment) => comment.id === update.deletedCommentId);
+    const index = this.#comments.findIndex((comment) => comment.id === +update.deletedCommentId);
     if (index === -1) {
       throw new Error('Can\'t update unexisting comment');
     }

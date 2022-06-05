@@ -23,12 +23,12 @@ export default class CardPresenter {
   #mode = Mode.CLOSE;
   #filterModel = null;
 
-  constructor(filmsSectionList, cardsModel, changeData, changeMode, filterModel) {
+  constructor(filmsSectionList, changeData, changeMode, filterModel, cardsModel) {
     this.#filmsSectionList = filmsSectionList;
-    this.#cardsModel = cardsModel;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
     this.#filterModel = filterModel;
+    this.#cardsModel = cardsModel;
   }
 
   init = (card, place) => {
@@ -116,19 +116,19 @@ export default class CardPresenter {
 
   #onCommentDeleteClick = (deletedCommentId) => {
     this.#cardsModel.founded = true;
-    this.#changeData(UpdateType.MAJOR, {
+    this.#changeData(UpdateType.MINOR, {
       ...this.#card,
-      comments: [...this.#card.comments.filter((item) => item !== deletedCommentId)],
+      comments: [...this.#card.comments.filter((item) => item !== +deletedCommentId)],
       deletedCommentId: deletedCommentId, newComment: ''
     });
   };
 
   #onCommentFormSubmit = (newComment) => {
     this.#cardsModel.founded = true;
-    this.#changeData(UpdateType.MAJOR, {
+    this.#changeData(UpdateType.MINOR, {
       ...this.#card,
-      comments: [...this.#card.comments, newComment.id],
-      newComment: newComment, deletedCommentId: ''
+      comments: [...this.#card.comments, +newComment.newComment.id],
+      newComment: newComment.newComment, deletedCommentId: ''
     });
   };
 
