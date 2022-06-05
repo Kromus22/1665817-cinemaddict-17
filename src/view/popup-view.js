@@ -290,7 +290,7 @@ export default class PopupView extends AbstractStatefulView {
   #commentDeleteClickHandler = (evt) => {
     if (evt.target.nodeName === 'BUTTON') {
       evt.preventDefault();
-      this._callback.commentDeleteClick(evt.target.dataset.commentId);
+      this._callback.commentDeleteClick(+evt.target.dataset.commentId);
     }
   };
 
@@ -309,7 +309,7 @@ export default class PopupView extends AbstractStatefulView {
       const scrollPosition = this.element.scrollTop;
 
       const createNewCommentTemplate = {
-        'id': `${getRandomInteger(349, 400)}`,
+        'id': getRandomInteger(349, 400),
         'author': 'Some Guy',
         'comment': evt.target.value,
         'date': new Date(),
