@@ -23,4 +23,10 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
-export { Titles, SortType, UpdateType, FilterType };
+const UserAction = {
+  UPDATE_FILM: 'UPDATE_FILM',
+  ADD_COMMENT: 'ADD_COMMENT',
+  DELETE_COMMENT: 'DELETE_COMMENT',
+};
+
+export { Titles, SortType, UpdateType, FilterType, UserAction };

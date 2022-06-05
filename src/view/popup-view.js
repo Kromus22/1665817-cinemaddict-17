@@ -166,26 +166,19 @@ const createPopupTemplate = (card, commentsForPopup) => {
   `);
 };
 
-const createNewCommentTemplate = (evt) => ({
-  'id': `${getRandomInteger(349, 400)}`,
-  'author': 'Some Guy',
-  'comment': evt.target.value,
-  'date': new Date(),
-  'emotion': 'smile'
-});
 
 export default class PopupView extends AbstractStatefulView {
-  #comment = null;
+  #comments = null;
 
-  constructor(card, comment) {
+  constructor(card, comments) {
     super();
     this._state = this.#convertCardToState(card);
-    this.#comment = comment;
+    this.#comments = comments;
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createPopupTemplate(this._state, this.#comment);
+    return createPopupTemplate(this._state, this.#comments);
   }
 
   _restoreHandlers = () => {
@@ -307,10 +300,33 @@ export default class PopupView extends AbstractStatefulView {
   };
 
   #formSubmitHandler = (evt) => {
+    if (!this._state.emojiForComm || this._state.commentText === '') {
+      return;
+    }
+
     if ((evt.keyCode === 10 || evt.keyCode === 13) && (evt.ctrlKey || evt.metaKey)) {
       evt.preventDefault();
-      this._callback.commentFormSubmit(createNewCommentTemplate(evt));
-      evt.target.value = '';
+      const scrollPosition = this.element.scrollTop;
+
+      const createNewCommentTemplate = {
+        'id': `${getRandomInteger(349, 400)}`,
+        'author': 'Some Guy',
+        'comment': evt.target.value,
+        'date': new Date(),
+        'emotion': this._state.emojiForComm,
+      };
+
+      this.updateElement({
+        comments: [...this._state.comments, createNewCommentTemplate],
+        comment: '',
+        emoji: false,
+      });
+
+      this.element.scrollTo = scrollPosition;
+
+      const update = { ...PopupView.this.#convertStateToCard(this._state), comment: [...this._state.comment, createNewCommentTemplate.id] };
+
+      this._callback.commentFormSubmit(update, createNewCommentTemplate);
     }
   };
 
