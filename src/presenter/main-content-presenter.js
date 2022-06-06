@@ -2,7 +2,7 @@ import FilmsSectionView from '../view/films-section-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
-import { Titles, SortType, UpdateType, FilterType } from '../consts.js';
+import { Titles, SortType, UpdateType, FilterType, UserAction } from '../consts.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import CardPresenter from './card-presenter.js';
 import NoResultsView from '../view/no-results-view.js';
@@ -18,6 +18,7 @@ export default class ContentPresenter {
   #mainContainer = null;
   #cardsModel = null;
   #noResultsComponent = null;
+  #commentsModel = null;
 
   #mainComponent = new FilmsSectionView();
   #sortComponent = null;
@@ -34,10 +35,11 @@ export default class ContentPresenter {
   #filterModel = null;
   #filterType = FilterType.ALL;
 
-  constructor(mainContainer, cardsModel, filterModel) {
+  constructor(mainContainer, cardsModel, filterModel, commentsModel) {
     this.#mainContainer = mainContainer;
     this.#cardsModel = cardsModel;
     this.#cardsModel.founded = false;
+    this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
     this.#cardsModel.addObserver(this.#handleMovieEvent);
     this.#filterModel.addObserver(this.#handleMovieEvent);
@@ -56,6 +58,10 @@ export default class ContentPresenter {
     }
 
     return filteredCards;
+  }
+
+  get comments() {
+    return this.#cardsModel.comments;
   }
 
   init = () => {
@@ -90,10 +96,20 @@ export default class ContentPresenter {
     }
   };
 
-  #handleViewAction = (updateType, update) => {
-    if (update.deletedCommentId) { this.#cardsModel.deleteComment(updateType, update); }
-    if (update.newComment) { this.#cardsModel.addComment(updateType, update); }
-    this.#cardsModel.updateCard(updateType, update);
+  #handleViewAction = (actionType, updateType, update, comment) => {
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this.#cardsModel.updateCard(updateType, update);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#commentsModel.addComment(comment);
+        this.#cardsModel.updateCard(updateType, update);
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#commentsModel.deleteComment(comment);
+        this.#cardsModel.updateCard(updateType, update);
+        break;
+    }
   };
 
   #handleModeChange = () => {

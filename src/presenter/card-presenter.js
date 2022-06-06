@@ -1,7 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import PopupView from '../view/popup-view.js';
 import FilmCardView from '../view/film-card-view.js';
-import { UpdateType } from '../consts.js';
+import { UpdateType, UserAction } from '../consts.js';
 
 const siteBodyElement = document.querySelector('body');
 const Mode = {
@@ -43,9 +43,7 @@ export default class CardPresenter {
 
 
     this.#cardComponent.setOpenHandler(this.#openPopup);
-    this.#cardComponent.setWatchlistHandler(this.#handleWatchlistClick);
-    this.#cardComponent.setWatchedHandler(this.#handleWatchedClick);
-    this.#cardComponent.setFavoriteHandler(this.#handleFavoriteClick);
+    this.#cardComponent.setControlButtonClickHandler(this.#handleControlButtonClick);
 
     if (prevCardComponent === null) {
       render(this.#cardComponent, this.#filmsSectionList.container);
@@ -71,65 +69,36 @@ export default class CardPresenter {
     }
   };
 
+  #handleControlButtonClick = (update) => {
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      update
+    );
+  };
+
   #createPopup = () => {
     this.#popupComponent = new PopupView(this.#card, this.#listComments);
     this.#popupComponent.setClosePopupButtonHandler(this.#closePopup);
-    this.#popupComponent.setWatchlistHandler(this.#handleWatchlistClick);
-    this.#popupComponent.setWatchedHandler(this.#handleWatchedClick);
-    this.#popupComponent.setFavoriteHandler(this.#handleFavoriteClick);
+    this.#popupComponent.setControlButtonClickHandler(this.#handleControlButtonClick);
     this.#popupComponent.setCommentDeleteClickHandler(this.#onCommentDeleteClick);
     this.#popupComponent.setformSubmitHandler(this.#onCommentFormSubmit);
   };
 
-  #handleWatchlistClick = () => {
+  #onCommentDeleteClick = (update, comment) => {
     this.#cardsModel.founded = true;
-    this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR, {
-      ...this.#card,
-      userDetails: {
-        ...this.#card.userDetails,
-        watchlist: !this.#card.userDetails.watchlist
-      }
-    });
+    this.#changeData(UserAction.DELETE_COMMENT,
+      UpdateType.MINOR,
+      update,
+      comment);
   };
 
-  #handleWatchedClick = () => {
+  #onCommentFormSubmit = (update, comment) => {
     this.#cardsModel.founded = true;
-    this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR, {
-      ...this.#card,
-      userDetails: {
-        ...this.#card.userDetails,
-        alreadyWatched: !this.#card.userDetails.alreadyWatched
-      }
-    });
-  };
-
-  #handleFavoriteClick = () => {
-    this.#cardsModel.founded = true;
-    this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR, {
-      ...this.#card,
-      userDetails: {
-        ...this.#card.userDetails,
-        favorite: !this.#card.userDetails.favorite
-      }
-    });
-  };
-
-  #onCommentDeleteClick = (deletedCommentId) => {
-    this.#cardsModel.founded = true;
-    this.#changeData(UpdateType.MINOR, {
-      ...this.#card,
-      comments: [...this.#card.comments.filter((item) => item !== +deletedCommentId)],
-      deletedCommentId: deletedCommentId, newComment: ''
-    });
-  };
-
-  #onCommentFormSubmit = (newComment) => {
-    this.#cardsModel.founded = true;
-    this.#changeData(UpdateType.MINOR, {
-      ...this.#card,
-      comments: [...this.#card.comments, +newComment.newComment.id],
-      newComment: newComment.newComment, deletedCommentId: ''
-    });
+    this.#changeData(UserAction.ADD_COMMENT,
+      UpdateType.MINOR,
+      update,
+      comment);
   };
 
   #openPopup = () => {

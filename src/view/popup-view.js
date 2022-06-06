@@ -3,8 +3,27 @@ import { humanizePopupDate, humanizeCommDate } from '../utils.js';
 import { getRandomInteger } from '../utils.js';
 import he from 'he';
 
+const commentsForFilm = (card, commentsForPopup) => {
+  const idCommentsThisFilm = commentsForPopup.filter(({ id }) => [card.id].some((idComm) => idComm === Number(id)));
+  idCommentsThisFilm.map(({ id, author, comment, date, emotion }) =>
+    `<li class="film-details__comment">
+        <span class="film-details__comment-emoji">
+          <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
+        </span>
+        <div>
+          <p class="film-details__comment-text">${he.encode(comment)}</p>
+          <p class="film-details__comment-info">
+            <span class="film-details__comment-author">${author}</span>
+            <span class="film-details__comment-day">${humanizeCommDate(date)}</span>
+            <button class="film-details__comment-delete" data-comment-id=${id}>Delete</button>
+          </p>
+        </div>
+      </li>`
+  ).join('');
+};
+
 const createPopupTemplate = (card, commentsForPopup) => {
-  const { id, comments, filmInfo, userDetails } = card;
+  const { id, filmInfo, userDetails, comments } = card;
 
   const releaseDate = filmInfo.release.date !== null
     ? humanizePopupDate(filmInfo.release.date)
@@ -26,26 +45,6 @@ const createPopupTemplate = (card, commentsForPopup) => {
   const durationMinutes = filmInfo.runtime - durationHours * 60;
 
   const genres = card.filmInfo.genre.reduce((acc, genre) => `${acc}<span class="film-details__genre">${genre}</span>`, '');
-
-  const commentsCount = card.comments.length;
-
-  const idCommentsThisFilm = commentsForPopup.filter(({ id }) => comments.some((idComm) => idComm === Number(id)));
-
-  const commentsForFilm = () => idCommentsThisFilm.map(({ id, author, comment, date, emotion }) =>
-    `<li class="film-details__comment">
-        <span class="film-details__comment-emoji">
-          <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
-        </span>
-        <div>
-          <p class="film-details__comment-text">${he.encode(comment)}</p>
-          <p class="film-details__comment-info">
-            <span class="film-details__comment-author">${author}</span>
-            <span class="film-details__comment-day">${humanizeCommDate(date)}</span>
-            <button class="film-details__comment-delete" data-comment-id=${id}>Delete</button>
-          </p>
-        </div>
-      </li>`
-  ).join('');
 
   const selectedEmoji = card.emojiForComm ?
     `<img src="images/emoji/${card.emojiForComm}.png" width="55" height="55" alt="emoji-${card.emojiForComm}}"></img>`
@@ -124,10 +123,10 @@ const createPopupTemplate = (card, commentsForPopup) => {
 
         <div class="film-details__bottom-container">
           <section class="film-details__comments-wrap">
-            <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${commentsCount}</span></h3>
+            <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
             <ul class="film-details__comments-list">
-              ${commentsForFilm()}
+              ${commentsForFilm(card, commentsForPopup)}
             </ul>
 
             <div class="film-details__new-comment">
@@ -191,19 +190,33 @@ export default class PopupView extends AbstractStatefulView {
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closePopupButtonHandler);
   };
 
-  setWatchlistHandler = (callback) => {
-    this._callback.popupWatchlistHandler = callback;
-    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#popupWatchlistHandler);
-  };
+  setControlButtonClickHandler = (callback) => {
+    this._callback.controlButtonClick = callback;
 
-  setWatchedHandler = (callback) => {
-    this._callback.popupWatchedHandler = callback;
-    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#popupWatchedHandler);
-  };
+    this.element.querySelector('.film-details__controls').addEventListener('click', (evt) => {
+      evt.preventDefault();
+      const scrollPosition = this.element.scrollTop;
 
-  setFavoriteHandler = (callback) => {
-    this._callback.popupFavoriteHandler = callback;
-    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#popupFavoriteHandler);
+      switch (evt.target) {
+        case this.element.querySelector('.film-details__control-button--watchlist'):
+          this.updateElement({
+            ...this._state, userDetails: { ...this._state.userDetails, watchlist: !this._state.userDetails.watchlist }
+          });
+          break;
+        case this.element.querySelector('.film-details__control-button--watched'):
+          this.updateElement({
+            ...this._state, userDetails: { ...this._state.userDetails, alreadyWatched: !this._state.userDetails.alreadyWatched }
+          });
+          break;
+        case this.element.querySelector('.film-details__control-button--favorite'):
+          this.updateElement({
+            ...this._state, userDetails: { ...this._state.userDetails, favorite: !this._state.userDetails.favorite }
+          });
+          break;
+      }
+      this._callback.controlButtonClick({ ...this.#convertStateToCard(this._state) });
+      this.element.scrollTop = scrollPosition;
+    });
   };
 
   #closePopupButtonHandler = (evt) => {
@@ -211,50 +224,12 @@ export default class PopupView extends AbstractStatefulView {
     this._callback.closePopupButtonHandler();
   };
 
-  #popupWatchlistHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.popupWatchlistHandler();
-    this.updateElement({
-      ...this._state,
-      userDetails: {
-        ...this._state.userDetails,
-        watchlist: !this._state.userDetails.watchlist
-      },
-      scrollTop: this.element.scrollTop
-    });
-  };
-
-  #popupWatchedHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.popupWatchedHandler();
-    this.updateElement({
-      ...this._state,
-      userDetails: {
-        ...this._state.userDetails,
-        alreadyWatched: !this._state.userDetails.alreadyWatched
-      },
-      scrollTop: this.element.scrollTop
-    });
-  };
-
-  #popupFavoriteHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.popupFavoriteHandler();
-    this.updateElement({
-      ...this._state,
-      userDetails: {
-        ...this._state.userDetails,
-        favorite: !this._state.userDetails.favorite
-      },
-      scrollTop: this.element.scrollTop
-    });
-  };
-
-  #convertCardToState = (card) => ({
+  #convertCardToState = (card, comments) => ({
     ...card,
     emojiForComm: null,
     commentText: null,
     scrollTop: null,
+    comments,
   });
 
   #convertStateToCard = (state) => {
@@ -284,14 +259,25 @@ export default class PopupView extends AbstractStatefulView {
 
   setCommentDeleteClickHandler = (callback) => {
     this._callback.commentDeleteClick = callback;
-    this.element.querySelector('.film-details__comments-list').addEventListener('click', this.#commentDeleteClickHandler);
+    this.element.querySelectorAll('.film-details__comment-delete').forEach((button) => button.addEventListener('click', this.#commentDeleteClickHandler));
   };
 
   #commentDeleteClickHandler = (evt) => {
-    if (evt.target.nodeName === 'BUTTON') {
-      evt.preventDefault();
-      this._callback.commentDeleteClick(+evt.target.dataset.commentId);
-    }
+    evt.preventDefault();
+    const scrollPosition = this.element.scrollTop;
+
+    const currentId = evt.target.closest('.film-details__comment').dataset.commentId;
+    const comment = this._state.comments.find((item) => item.id === +currentId);
+    const updatedComments = this._state.comments.filter((item) => item !== +currentId);
+    const update = { ...this.#convertStateToCard(this._state), comments: updatedComments };
+
+    this.updateElement({
+      comment: updatedComments,
+      comments: this._state.comments.filter((item) => item !== comment)
+    });
+
+    this._callback.commentDeleteClick(update, comment);
+    this.element.scrollTop = scrollPosition;
   };
 
   setformSubmitHandler = (callback) => {
@@ -343,9 +329,7 @@ export default class PopupView extends AbstractStatefulView {
 
   #setOuterHandlers = () => {
     this.setClosePopupButtonHandler(this._callback.closePopupButtonHandler);
-    this.setWatchlistHandler(this._callback.popupWatchlistHandler);
-    this.setWatchedHandler(this._callback.popupWatchedHandler);
-    this.setFavoriteHandler(this._callback.popupFavoriteHandler);
+    this.setControlButtonClickHandler(this._callback.controlButtonClick);
     this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
     this.setformSubmitHandler(this._callback.commentFormSubmit);
   };

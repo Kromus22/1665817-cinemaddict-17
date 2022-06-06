@@ -13,7 +13,8 @@ const siteFooterElement = document.querySelector('.footer');
 
 const cardsModel = new CardsModel();
 const filterModel = new FilterModel();
-const contentPresenter = new ContentPresenter(siteMainElement, cardsModel, filterModel);
+const commentsModel = cardsModel.comments;
+const contentPresenter = new ContentPresenter(siteMainElement, cardsModel, filterModel, commentsModel);
 const filterPresenter = new FilterPresenter(siteMainElement, filterModel, cardsModel);
 
 render(new ProfileView(), siteHeaderElement);
