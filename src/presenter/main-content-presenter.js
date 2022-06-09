@@ -52,12 +52,12 @@ export default class ContentPresenter {
 
     switch (this.#currentSortType) {
       case SortType.DATE:
-        return filteredCards.sort(sortDateDown);
+        return filteredCards.slice().sort(sortDateDown);
       case SortType.RATING:
-        return filteredCards.sort(sortRatingDown);
+        return filteredCards.slice().sort(sortRatingDown);
     }
 
-    return filteredCards;
+    return [...filteredCards];
   }
 
   get comments() {
@@ -102,11 +102,11 @@ export default class ContentPresenter {
         this.#cardsModel.updateCard(updateType, update);
         break;
       case UserAction.ADD_COMMENT:
-        this.#commentsModel.addComment(comment);
+        this.#cardsModel.addComment(comment);
         this.#cardsModel.updateCard(updateType, update);
         break;
       case UserAction.DELETE_COMMENT:
-        this.#commentsModel.deleteComment(comment);
+        this.#cardsModel.deleteComment(comment);
         this.#cardsModel.updateCard(updateType, update);
         break;
     }

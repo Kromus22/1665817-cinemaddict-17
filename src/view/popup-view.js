@@ -4,9 +4,8 @@ import { getRandomInteger } from '../utils.js';
 import he from 'he';
 
 const commentsForFilm = (card, commentsForPopup) => {
-  const idCommentsThisFilm = commentsForPopup.filter(({ id }) => [card.id].some((idComm) => idComm === Number(id)));
-  idCommentsThisFilm.map(({ id, author, comment, date, emotion }) =>
-    `<li class="film-details__comment">
+  const idCommentsThisFilm = commentsForPopup.filter(({ id }) => card.comments.some((idComm) => idComm === Number(id)));
+  const blavla = idCommentsThisFilm.map(({ id, author, comment, date, emotion }) => (`<li class="film-details__comment">
         <span class="film-details__comment-emoji">
           <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
         </span>
@@ -18,8 +17,8 @@ const commentsForFilm = (card, commentsForPopup) => {
             <button class="film-details__comment-delete" data-comment-id=${id}>Delete</button>
           </p>
         </div>
-      </li>`
-  ).join('');
+      </li>`)).join('');
+  return blavla;
 };
 
 const createPopupTemplate = (card, commentsForPopup) => {
@@ -171,7 +170,7 @@ export default class PopupView extends AbstractStatefulView {
 
   constructor(card, comments) {
     super();
-    this._state = this.#convertCardToState(card);
+    this._state = this.#convertCardToState(card, comments);
     this.#comments = comments;
     this.#setInnerHandlers();
   }
@@ -266,7 +265,7 @@ export default class PopupView extends AbstractStatefulView {
     evt.preventDefault();
     const scrollPosition = this.element.scrollTop;
 
-    const currentId = evt.target.closest('.film-details__comment').dataset.commentId;
+    const currentId = evt.target.dataset.commentId;
     const comment = this._state.comments.find((item) => item.id === +currentId);
     const updatedComments = this._state.comments.filter((item) => item !== +currentId);
     const update = { ...this.#convertStateToCard(this._state), comments: updatedComments };
