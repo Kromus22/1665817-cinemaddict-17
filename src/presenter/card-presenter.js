@@ -13,7 +13,6 @@ export default class CardPresenter {
   #popupComponent = null;
   #cardsModel = null;
   #commentsModel = null;
-  #changeMode = null;
   #filterModel = null;
   #popupCard = null;
 
@@ -29,6 +28,8 @@ export default class CardPresenter {
   init = (card) => {
 
     const prevCardComponent = this.#cardComponent;
+    card.deletingCommentError = false;
+    card.addingCommentError = false;
     this.#cardComponent = new FilmCardView(card);
 
     this.#cardComponent.setClickHandler(this.#createPopup);
@@ -54,6 +55,7 @@ export default class CardPresenter {
       if (card.deletedCommentId) { this.#popupCard.deletingCommentError = true; }
       if (card.newComment) { this.#popupCard.addingCommentError = true; }
       this.#onCardClick(this.#popupCard);
+      this.#popupComponent.element.scrollTop = this.#cardsModel.popupScrollPosition;
       this.#cardsModel.popupRerender = false;
     }
   };
@@ -69,19 +71,19 @@ export default class CardPresenter {
     this.#createPopup(card);
   };
 
-  #onWatchListClick = () => {
+  #onWatchListClick = (scroll) => {
     this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR,
-      { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, watchlist: !this.#popupCard.userDetails.watchlist } });
+      { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, watchlist: !this.#popupCard.userDetails.watchlist }, scrollTop: scroll });
   };
 
-  #onAlreadyWatchedClick = () => {
+  #onAlreadyWatchedClick = (scroll) => {
     this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR,
-      { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, alreadyWatched: !this.#popupCard.userDetails.alreadyWatched } });
+      { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, alreadyWatched: !this.#popupCard.userDetails.alreadyWatched }, scrollTop: scroll });
   };
 
-  #onFavoriteClick = () => {
+  #onFavoriteClick = (scroll) => {
     this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR,
-      { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, favorite: !this.#popupCard.userDetails.favorite } });
+      { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, favorite: !this.#popupCard.userDetails.favorite }, scrollTop: scroll });
   };
 
   #onCommentDeleteClick = (deletedCommentId) => {
@@ -91,7 +93,7 @@ export default class CardPresenter {
 
   #onCommentFormSubmit = (newComment) => {
     this.#changeData(UpdateType.MAJOR,
-      { ...this.#popupCard, newComment: newComment });
+      { ...this.#popupCard, comments: [...this.#popupCard.comments, newComment.id], newComment: newComment });
   };
 
   #createPopup = (card = this.#cardComponent.card) => {

@@ -9,6 +9,8 @@ export default class CardsModel extends Observable {
     this._notify(UpdateType.INIT);
   };
 
+  popupScrollPosition;
+
   get cards() {
     return this.#cards;
   }

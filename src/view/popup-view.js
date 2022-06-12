@@ -181,7 +181,7 @@ export default class PopupView extends AbstractStatefulView {
     return createPopupTemplate(this._state, this.#comments);
   }
 
-  #convertCardToState = (card) => ({ ...card, tappedEmotionId: null, scrollTop: null });
+  #convertCardToState = (card) => ({ ...card, tappedEmotionId: null });
 
   setCloseClickHandler = (callback) => {
     this._callback.popupCloseButtonClick = callback;
@@ -197,13 +197,8 @@ export default class PopupView extends AbstractStatefulView {
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchListClickHandler);
   };
 
-  #watchListClickHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.toWatchListClick();
-    this.updateElement({
-      ...this._state,
-      scrollTop: this.element.scrollTop
-    });
+  #watchListClickHandler = () => {
+    this._callback.toWatchListClick(this.element.scrollTop);
   };
 
   setAlreadyWatchedClickHandler = (callback) => {
@@ -212,11 +207,7 @@ export default class PopupView extends AbstractStatefulView {
   };
 
   #alreadyWatchedClickHandler = () => {
-    this._callback.alreadyWatchedClick();
-    this.updateElement({
-      ...this._state,
-      scrollTop: this.element.scrollTop
-    });
+    this._callback.alreadyWatchedClick(this.element.scrollTop);
   };
 
   setFavoriteClickHandler = (callback) => {
@@ -225,11 +216,7 @@ export default class PopupView extends AbstractStatefulView {
   };
 
   #favoriteClickHandler = () => {
-    this._callback.favoriteClick();
-    this.updateElement({
-      ...this._state,
-      scrollTop: this.element.scrollTop
-    });
+    this._callback.favoriteClick(this.element.scrollTop);
   };
 
   setCommentDeleteClickHandler = (callback) => {
