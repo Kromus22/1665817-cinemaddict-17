@@ -116,6 +116,10 @@ export default class ContentPresenter {
     this.#handleMovieEvent(UpdateType.MINOR);
   };
 
+  #handleModeChange = () => {
+    this.#cardPresenter.forEach((presenter) => presenter.resetView());
+  };
+
   #renderCardList = () => {
     render(this.#mainComponent, this.#mainContainer);
     render(this.#filmsSectionList, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
@@ -143,7 +147,7 @@ export default class ContentPresenter {
   };
 
   #renderCard = (card, place, extra) => {
-    const cardPresenter = new CardPresenter(place, this.#cardsModel, this.#handleViewAction, this.#filterModel, this.#commentsModel);
+    const cardPresenter = new CardPresenter(place, this.#cardsModel, this.#handleViewAction, this.#filterModel, this.#commentsModel, this.#handleModeChange);
     cardPresenter.init(card);
     switch (extra) {
       case 'rated':

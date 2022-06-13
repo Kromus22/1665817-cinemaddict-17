@@ -4,7 +4,10 @@ import FilmCardView from '../view/film-card-view.js';
 import { UpdateType } from '../consts.js';
 
 const siteBodyElement = document.querySelector('body');
-
+const Mode = {
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE',
+};
 
 export default class CardPresenter {
   #filmsSectionList = null;
@@ -15,19 +18,22 @@ export default class CardPresenter {
   #commentsModel = null;
   #filterModel = null;
   #popupCard = null;
+  #changeMode = null;
+  #mode = Mode.CLOSE;
 
-  constructor(container, cardsModel, changeData, filterModel, commentsModel) {
+  constructor(container, cardsModel, changeData, filterModel, commentsModel, changeMode) {
     this.#filmsSectionList = container;
     this.#cardsModel = cardsModel;
     this.#changeData = changeData;
     this.#filterModel = filterModel;
     this.#commentsModel = commentsModel;
-
+    this.#changeMode = changeMode;
   }
 
   init = (card) => {
 
     const prevCardComponent = this.#cardComponent;
+    const prevPopupComponent = this.#popupComponent;
     card.deletingCommentError = false;
     card.addingCommentError = false;
     this.#cardComponent = new FilmCardView(card);
@@ -46,6 +52,12 @@ export default class CardPresenter {
       }
     }
 
+    if (this.#mode === Mode.OPEN) {
+      if (!prevPopupComponent) { this.#createPopup(card); }
+    }
+
+    remove(prevCardComponent);
+
     this.#popupCard = card;
 
     if (document.querySelector('.film-details') && this.#cardsModel.popupRerender) {
@@ -62,6 +74,12 @@ export default class CardPresenter {
 
   destroy = () => {
     remove(this.#cardComponent);
+  };
+
+  resetView = () => {
+    if (this.#mode !== Mode.CLOSE) {
+      this.#closePopup();
+    }
   };
 
   #onCardClick = (card) => {
@@ -97,6 +115,7 @@ export default class CardPresenter {
   };
 
   #createPopup = (card = this.#cardComponent.card) => {
+    this.#changeMode();
     this.#popupComponent = new PopupView(card, this.#commentsModel.comments);
     this.#cardsModel.popupId = this.#popupComponent.element.dataset.filmId;
     this.#popupComponent.setCloseClickHandler(this.#closePopup);
@@ -108,12 +127,14 @@ export default class CardPresenter {
     document.addEventListener('keydown', this.#onEscKeyDown);
     siteBodyElement.classList.toggle('hide-overflow');
     render(this.#popupComponent, siteBodyElement, RenderPosition.AFTEREND);
+    this.#mode = Mode.OPEN;
   };
 
   #closePopup = () => {
     document.querySelector('.film-details').remove();
     siteBodyElement.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this.#onEscKeyDown);
+    this.#mode = Mode.CLOSE;
   };
 
   #onEscKeyDown = (evt) => {

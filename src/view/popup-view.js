@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { humanizePopupDate, humanizeCommDate } from '../utils.js';
+import { humanizePopupDate, humanizeCommDate, getRandomInteger } from '../utils.js';
 import he from 'he';
 
 const createPopupTemplate = (state, commentsArr) => {
@@ -162,7 +162,10 @@ const createPopupTemplate = (state, commentsArr) => {
 };
 
 const createNewCommentTemplate = (evt, state) => ({
+  'id': `${getRandomInteger(125, 200)}`,
+  'author': 'Some Guy',
   'comment': evt.target.value,
+  'date': new Date(),
   'emotion': state.tappedEmotionId.split('-')[1]
 });
 
@@ -232,7 +235,7 @@ export default class PopupView extends AbstractStatefulView {
         deletedCommentId: evt.target.dataset.commentId,
         scrollTop: this.element.scrollTop
       });
-      this._callback.commentDeleteClick(evt.target.dataset.commentId);
+      this._callback.commentDeleteClick(+evt.target.dataset.commentId);
     }
   };
 
