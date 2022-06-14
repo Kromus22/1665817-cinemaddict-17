@@ -6,7 +6,7 @@ const createPopupTemplate = (state, commentsArr) => {
   const {
     filmInfo: { title, totalRating, release, runtime, genre, poster, description, director, writers, actors, alternativeTitle, ageRating },
     userDetails: { watchlist, alreadyWatched, favorite },
-    comments, tappedEmotionId, typedComment, isDeleting, deletedCommentId, isSaving } = state;
+    comments, tappedEmotionId, typedComment, isDeleting, deletedCommentId, isSaving, deletingCommentError, addingCommentError } = state;
   const releaseDate = release.date !== null
     ? humanizePopupDate(release.date)
     : '';
@@ -55,7 +55,7 @@ const createPopupTemplate = (state, commentsArr) => {
           </div>
           <div class="film-details__info-wrap">
             <div class="film-details__poster">
-              <img class="film-details__poster-img" src="./images/posters/${poster}" alt="">
+              <img class="film-details__poster-img" src="./${poster}" alt="">
 
               <p class="film-details__age">${ageRating}</p>
             </div>
@@ -121,11 +121,11 @@ const createPopupTemplate = (state, commentsArr) => {
           <section class="film-details__comments-wrap">
             <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
-            <ul class="film-details__comments-list">
+            <ul class="film-details__comments-list ${deletingCommentError ? 'shake' : ''}">
               ${createCommentsTemplate().innerHTML}
             </ul>
 
-            <div class="film-details__new-comment">
+            <div class="film-details__new-comment ${addingCommentError ? 'shake' : ''}">
               <div class="film-details__add-emoji-label">${createEmotion()}</div>
 
               <label class="film-details__comment-label">

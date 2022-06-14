@@ -111,10 +111,11 @@ export default class CardPresenter {
 
   #onCommentFormSubmit = (newComment) => {
     this.#changeData(UpdateType.MAJOR,
-      { ...this.#popupCard, comments: [...this.#popupCard.comments, newComment.id], newComment: newComment });
+      { ...this.#popupCard, newComment: newComment });
   };
 
-  #createPopup = (card = this.#cardComponent.card) => {
+  #createPopup = async (card = this.#cardComponent.card) => {
+    await this.#commentsModel.init(card);
     this.#changeMode();
     this.#popupComponent = new PopupView(card, this.#commentsModel.comments);
     this.#cardsModel.popupId = this.#popupComponent.element.dataset.filmId;
@@ -127,6 +128,7 @@ export default class CardPresenter {
     document.addEventListener('keydown', this.#onEscKeyDown);
     siteBodyElement.classList.toggle('hide-overflow');
     render(this.#popupComponent, siteBodyElement, RenderPosition.AFTEREND);
+    this.#popupComponent.element.scrollTop = this.#cardsModel.popupScrollPosition;
     this.#mode = Mode.OPEN;
   };
 

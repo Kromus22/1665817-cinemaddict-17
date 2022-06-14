@@ -91,13 +91,13 @@ export default class ContentPresenter {
     }
   };
 
-  #handleViewAction = (updateType, update) => {
+  #handleViewAction = async (updateType, update) => {
     this.#cardsModel.popupRerender = true;
     if (document.querySelector('.film-details')) {
       this.#cardsModel.popupScrollPosition = update.scrollTop;
     }
-    if (update.deletedCommentId) { this.#commentsModel.deleteComment(updateType, update); }
-    if (update.newComment) { this.#commentsModel.addComment(updateType, update); }
+    if (update.deletedCommentId) { await this.#commentsModel.deleteComment(updateType, update); }
+    if (update.newComment) { await this.#commentsModel.addComment(updateType, update); }
     this.#cardsModel.updateCard(updateType, update);
   };
 
