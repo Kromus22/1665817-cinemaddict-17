@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { humanizePopupDate, humanizeCommDate, getRandomInteger } from '../utils.js';
+import { humanizePopupDate, humanizeCommDate } from '../utils.js';
 import he from 'he';
 
 const createPopupTemplate = (state, commentsArr) => {
@@ -162,10 +162,7 @@ const createPopupTemplate = (state, commentsArr) => {
 };
 
 const createNewCommentTemplate = (evt, state) => ({
-  'id': `${getRandomInteger(125, 200)}`,
-  'author': 'Some Guy',
   'comment': evt.target.value,
-  'date': new Date(),
   'emotion': state.tappedEmotionId.split('-')[1]
 });
 
@@ -233,9 +230,8 @@ export default class PopupView extends AbstractStatefulView {
       this.updateElement({
         isDeleting: true,
         deletedCommentId: evt.target.dataset.commentId,
-        scrollTop: this.element.scrollTop
       });
-      this._callback.commentDeleteClick(+evt.target.dataset.commentId);
+      this._callback.commentDeleteClick(evt.target.dataset.commentId);
     }
   };
 
@@ -249,7 +245,6 @@ export default class PopupView extends AbstractStatefulView {
       evt.preventDefault();
       this.updateElement({
         isSaving: true,
-        scrollTop: this.element.scrollTop
       });
       this._callback.commentFormSubmit(createNewCommentTemplate(evt, this._state));
     }
@@ -274,7 +269,6 @@ export default class PopupView extends AbstractStatefulView {
     evt.preventDefault();
     this._setState({
       typedComment: evt.target.value,
-      scrollTop: this.element.scrollTop
     });
   };
 
@@ -285,7 +279,6 @@ export default class PopupView extends AbstractStatefulView {
       delete this._state.addingCommentError;
       this.updateElement({
         tappedEmotionId: evt.target.id,
-        scrollTop: this.element.scrollTop
       });
     }
   };

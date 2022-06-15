@@ -9,10 +9,12 @@ import SortView from '../view/sorts-view.js';
 import CardsModel from '../model/cards-model.js';
 import { sortDateDown, sortRatingDown, filters } from '../utils.js';
 import LoadingView from '../view/loading-view.js';
+import FooterStats from '../view/footer-stats-view.js';
 
 
 const CARD_COUNT_PER_STEP = 5;
 const TOP_FILMS_COUNT = 2;
+const siteFooterElement = document.querySelector('.footer__statistics');
 
 export default class ContentPresenter {
   #mainContainer = null;
@@ -105,6 +107,7 @@ export default class ContentPresenter {
     this.#sortComponent = new SortView(this.#currentSortType);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
     render(this.#sortComponent, this.#mainContainer);
+    this.isSorting = false;
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -113,7 +116,7 @@ export default class ContentPresenter {
     }
 
     this.#currentSortType = sortType;
-    this.#handleMovieEvent(UpdateType.MINOR);
+    this.#handleMovieEvent(UpdateType.MINOR, this.isSorting = true);
   };
 
   #handleModeChange = () => {
@@ -144,6 +147,10 @@ export default class ContentPresenter {
     for (let i = 0; i < Math.min(commentedMovies.length, TOP_FILMS_COUNT); i++) {
       this.#renderCard(commentedMovies[i], this.#mostCommsListContainer.container, 'commented');
     }
+  };
+
+  #renderSiteFooter = (component, container, position) => {
+    render(component, container, position);
   };
 
   #renderCard = (card, place, extra) => {
@@ -209,6 +216,7 @@ export default class ContentPresenter {
 
     this.#renderSort(this.#sortComponent, this.#mainContainer);
     render(this.#mainComponent, this.#mainContainer);
+    this.#renderSiteFooter(new FooterStats(this.cards.length), siteFooterElement);
 
     if (!this.cards.length) {
       remove(this.#sortComponent);
@@ -233,11 +241,11 @@ export default class ContentPresenter {
         }
         break;
       case UpdateType.MINOR:
-        this.#clearCardList({ resetRenderedCardsCount: true });
+        this.#clearCardList({ resetRenderedCardsCount: true, resetSortType: !this.isSorting });
         this.#renderCardList();
         break;
       case UpdateType.MAJOR:
-        this.#clearCardList({ resetRenderedCardsCount: false, resetSortType: true, resetTops: true });
+        this.#clearCardList({ resetRenderedCardsCount: false, resetSortType: !update, resetTops: true });
         this.#renderCardList();
         this.#renderTops();
         break;

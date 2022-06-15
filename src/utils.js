@@ -5,15 +5,6 @@ import { FilterType } from './consts.js';
 dayjs.extend(relativeTime);
 const TWO_DAYS_MILLISECONDS = 172800000;
 
-const getRandomInteger = (a = 0, b = 1) => {
-  const lower = Math.ceil(Math.min(a, b));
-  const upper = Math.floor(Math.max(a, b));
-
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
-};
-
-const getRandomNumber = (min, max) => min + Math.random() * (max - min);
-
 const humanizeDate = (date) => dayjs(date).format('YYYY');
 const humanizePopupDate = (date) => dayjs(date).format('D MMMM YYYY');
 const humanizeCommDate = (date) => {
@@ -73,4 +64,4 @@ const updateItem = (items, update) => {
 };
 
 
-export { sortDateDown, sortRatingDown, getRandomInteger, humanizeDate, getRandomNumber, isFilmChecked, humanizePopupDate, humanizeCommDate, filters, updateItem };
+export { sortDateDown, sortRatingDown, humanizeDate, isFilmChecked, humanizePopupDate, humanizeCommDate, filters, updateItem };

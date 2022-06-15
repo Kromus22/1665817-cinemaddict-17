@@ -74,6 +74,7 @@ export default class CardPresenter {
 
   destroy = () => {
     remove(this.#cardComponent);
+    document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
   resetView = () => {
@@ -82,40 +83,52 @@ export default class CardPresenter {
     }
   };
 
-  #onCardClick = (card) => {
+  #onCardClick = async (card) => {
     if (document.querySelector('.film-details')) {
+      if (!this.#cardsModel.popupRerender) { await this.#commentsModel.init(this.#cardComponent.card); }
       this.#closePopup();
+    } else {
+      await this.#commentsModel.init(this.#cardComponent.card);
     }
     this.#createPopup(card);
   };
 
   #onWatchListClick = (scroll) => {
     this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR,
-      { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, watchlist: !this.#popupCard.userDetails.watchlist }, scrollTop: scroll });
+      document.querySelector('.film-details') && this.#cardsModel.key ?
+        { ...this.#cardsModel.popupCard, userDetails: { ...this.#cardsModel.popupCard.userDetails, watchlist: !this.#cardsModel.popupCard.userDetails.watchlist }, scrollTop: scroll } :
+        { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, watchlist: !this.#popupCard.userDetails.watchlist }, scrollTop: scroll });
   };
 
   #onAlreadyWatchedClick = (scroll) => {
     this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR,
-      { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, alreadyWatched: !this.#popupCard.userDetails.alreadyWatched }, scrollTop: scroll });
+      document.querySelector('.film-details') && this.#cardsModel.key ?
+        { ...this.#cardsModel.popupCard, userDetails: { ...this.#cardsModel.popupCard.userDetails, alreadyWatched: !this.#cardsModel.popupCard.userDetails.alreadyWatched }, scrollTop: scroll } :
+        { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, alreadyWatched: !this.#popupCard.userDetails.alreadyWatched }, scrollTop: scroll });
   };
 
   #onFavoriteClick = (scroll) => {
     this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR,
-      { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, favorite: !this.#popupCard.userDetails.favorite }, scrollTop: scroll });
+      document.querySelector('.film-details') && this.#cardsModel.key ?
+        { ...this.#cardsModel.popupCard, userDetails: { ...this.#cardsModel.popupCard.userDetails, favorite: !this.#cardsModel.popupCard.userDetails.favorite }, scrollTop: scroll } :
+        { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, favorite: !this.#popupCard.userDetails.favorite }, scrollTop: scroll });
   };
 
   #onCommentDeleteClick = (deletedCommentId) => {
     this.#changeData(UpdateType.MAJOR,
-      { ...this.#popupCard, comments: [...this.#popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId });
+      document.querySelector('.film-details') && this.#cardsModel.key ?
+        { ...this.#cardsModel.popupCard, comments: [...this.#cardsModel.popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId, newComment: '' } :
+        { ...this.#popupCard, comments: [...this.#popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId, newComment: '' });
   };
 
   #onCommentFormSubmit = (newComment) => {
     this.#changeData(UpdateType.MAJOR,
-      { ...this.#popupCard, newComment: newComment });
+      document.querySelector('.film-details') && this.#cardsModel.key ?
+        { ...this.#cardsModel.popupCard, newComment: newComment, deletedCommentId: '' } :
+        { ...this.#popupCard, newComment: newComment, deletedCommentId: '' });
   };
 
-  #createPopup = async (card = this.#cardComponent.card) => {
-    await this.#commentsModel.init(card);
+  #createPopup = (card = this.#cardComponent.card) => {
     this.#changeMode();
     this.#popupComponent = new PopupView(card, this.#commentsModel.comments);
     this.#cardsModel.popupId = this.#popupComponent.element.dataset.filmId;

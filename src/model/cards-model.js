@@ -52,6 +52,7 @@ export default class CardsModel extends Observable {
   };
 
   popupScrollPosition;
+  popupRerender = false;
 
   get cards() {
     return this.#cards;
@@ -74,6 +75,8 @@ export default class CardsModel extends Observable {
       ];
       this._notify(updateType, update);
     } catch (err) {
+      update = this.cards.find((item) => item.id === update.item);
+      this._notify(UpdateType.PATCH, update);
       throw new Error('Can\'t update unexisting movie');
     }
   };
