@@ -168,7 +168,7 @@ export default class ContentPresenter {
     }
   };
 
-  #clearCardList = ({ resetRenderedCardsCount = false, resetSortType = false, renderTops = false } = {}) => {
+  #clearCardList = ({ resetRenderedCardsCount = false, resetSortType = false, resetTops = false } = {}) => {
 
     if (resetSortType) {
       this.#currentSortType = SortType.DEFAULT;
@@ -182,9 +182,7 @@ export default class ContentPresenter {
       remove(this.#noResultsComponent);
     }
 
-    const cardsCount = this.cards.length;
-
-    if (renderTops) {
+    if (resetTops) {
       this.#topRatedPresenter.forEach((presenter) => presenter.destroy());
       this.#topRatedPresenter.clear();
       this.#topCommPresenter.forEach((presenter) => presenter.destroy());
@@ -198,8 +196,6 @@ export default class ContentPresenter {
 
     if (resetRenderedCardsCount) {
       this.#renderCardCount = CARD_COUNT_PER_STEP;
-    } else {
-      this.#renderCardCount = cardsCount;
     }
     this.#renderSort();
   };
