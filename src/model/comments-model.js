@@ -1,5 +1,6 @@
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../consts.js';
+import { Error } from '../services/api-service.js';
 
 export default class CommsModel extends Observable {
   #moviesApiService = null;
@@ -16,7 +17,6 @@ export default class CommsModel extends Observable {
     } catch (err) {
       this.#comments = [];
     }
-    this._notify(UpdateType.INIT);
   };
 
   get comments() {
@@ -37,6 +37,7 @@ export default class CommsModel extends Observable {
       ];
       delete update.deletedCommentId;
     } catch (err) {
+      Error.DELETING = true;
       update.comments.push(update.deletedCommentId);
       this._notify(UpdateType.PATCH, update);
       throw new Error('Can\'t delete comment');
@@ -47,8 +48,10 @@ export default class CommsModel extends Observable {
     try {
       const updatedComments = await this.#moviesApiService.addComment(update);
       this.#comments = [...updatedComments.comments];
-      delete updatedComments.card;
+      delete update.newComment;
+      update = updatedComments.card;
     } catch (err) {
+      Error.ADDING = true;
       this._notify(UpdateType.PATCH, update);
       throw new Error('Can\'t create new comment');
     }

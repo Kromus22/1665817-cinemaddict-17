@@ -3,29 +3,29 @@ import { humanizeDate } from '../utils.js';
 const MAX_DESCR_LENGTH = 139;
 
 const createFilmCardTemplate = (card) => {
+  if (card) {
+    const {
+      filmInfo: { title, totalRating, release, runtime, genre, poster, description },
+      userDetails: { watchlist, alreadyWatched, favorite }
+    } = card;
 
-  const {
-    filmInfo: { title, totalRating, release, runtime, genre, poster, description },
-    userDetails: { watchlist, alreadyWatched, favorite }
-  } = card;
+    const descriptionFilm = description.length > MAX_DESCR_LENGTH
+      ? `${description.slice(0, MAX_DESCR_LENGTH)}...` : description;
 
-  const descriptionFilm = description.length > MAX_DESCR_LENGTH
-    ? `${description.slice(0, MAX_DESCR_LENGTH)}...` : description;
+    const releaseDate = release.date !== null
+      ? humanizeDate(release.date)
+      : '';
 
-  const releaseDate = release.date !== null
-    ? humanizeDate(release.date)
-    : '';
+    const getControlClassName = (option) => option
+      ? 'film-card__controls-item--active'
+      : '';
 
-  const getControlClassName = (option) => option
-    ? 'film-card__controls-item--active'
-    : '';
+    const durationHours = Math.floor(runtime / 60);
+    const durationMinutes = runtime - durationHours * 60;
 
-  const durationHours = Math.floor(runtime / 60);
-  const durationMinutes = runtime - durationHours * 60;
+    const commentsCount = card.comments.length;
 
-  const commentsCount = card.comments.length;
-
-  return (`
+    return (`
   <article class="film-card">
     <a class="film-card__link">
       <h3 class="film-card__title">${title}</h3>
@@ -46,6 +46,7 @@ const createFilmCardTemplate = (card) => {
     </div>
   </article>
   `);
+  }
 };
 
 export default class FilmCardView extends AbstractView {

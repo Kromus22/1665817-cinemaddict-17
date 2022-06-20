@@ -2,12 +2,13 @@ import { render, replace, remove, RenderPosition } from '../framework/render.js'
 import PopupView from '../view/popup-view.js';
 import FilmCardView from '../view/film-card-view.js';
 import { UpdateType } from '../consts.js';
+import { Error } from '../services/api-service.js';
 
 const siteBodyElement = document.querySelector('body');
-const Mode = {
-  OPEN: 'OPEN',
-  CLOSE: 'CLOSE',
-};
+// const Mode = {
+//   OPEN: 'OPEN',
+//   CLOSE: 'CLOSE',
+// };
 
 export default class CardPresenter {
   #filmsSectionList = null;
@@ -18,8 +19,9 @@ export default class CardPresenter {
   #commentsModel = null;
   #filterModel = null;
   #popupCard = null;
-  #changeMode = null;
-  #mode = Mode.CLOSE;
+  // #changeMode = null;
+  // #mode = Mode.CLOSE;
+
 
   constructor(container, cardsModel, changeData, filterModel, commentsModel, changeMode) {
     this.#filmsSectionList = container;
@@ -27,18 +29,15 @@ export default class CardPresenter {
     this.#changeData = changeData;
     this.#filterModel = filterModel;
     this.#commentsModel = commentsModel;
-    this.#changeMode = changeMode;
+    // this.#changeMode = changeMode;
   }
 
   init = (card) => {
-
     const prevCardComponent = this.#cardComponent;
-    const prevPopupComponent = this.#popupComponent;
-    card.deletingCommentError = false;
-    card.addingCommentError = false;
+    //const prevPopupComponent = this.#popupComponent;
     this.#cardComponent = new FilmCardView(card);
 
-    this.#cardComponent.setClickHandler(this.#createPopup);
+    this.#cardComponent.setClickHandler(this.#onCardClick);
     this.#cardComponent.setWatchlistClickHandler(this.#onWatchListClick);
     this.#cardComponent.setAlreadyWatchedClickHandler(this.#onAlreadyWatchedClick);
     this.#cardComponent.setFavoriteClickHandler(this.#onFavoriteClick);
@@ -52,23 +51,21 @@ export default class CardPresenter {
       }
     }
 
-    if (this.#mode === Mode.OPEN) {
-      if (!prevPopupComponent) { this.#createPopup(card); }
-    }
+    // if (this.#mode === Mode.OPEN) {
+    //   if (!prevPopupComponent) { this.#createPopup(card); }
+    // }
 
-    remove(prevCardComponent);
+    // remove(prevPopupComponent);
 
     this.#popupCard = card;
 
     if (document.querySelector('.film-details') && this.#cardsModel.popupRerender) {
-      this.#popupCard = this.#cardsModel.cards.find((item) => item.id === this.#cardsModel.popupId);
-      this.#popupCard.deletingCommentError = false;
-      this.#popupCard.addingCommentError = false;
-      if (card.deletedCommentId) { this.#popupCard.deletingCommentError = true; }
-      if (card.newComment) { this.#popupCard.addingCommentError = true; }
-      this.#onCardClick(this.#popupCard);
+      this.#cardsModel.popupCard = this.#cardsModel.cards.find((item) => item.id === this.#cardsModel.popupId);
+      this.#onCardClick(this.#cardsModel.popupCard);
+      this.#popupComponent.setNewStateComments(this.#commentsModel.prevComm);
       this.#popupComponent.element.scrollTop = this.#cardsModel.popupScrollPosition;
       this.#cardsModel.popupRerender = false;
+      this.#cardsModel.key = true;
     }
   };
 
@@ -77,11 +74,11 @@ export default class CardPresenter {
     document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
-  resetView = () => {
-    if (this.#mode !== Mode.CLOSE) {
-      this.#closePopup();
-    }
-  };
+  // resetView = () => {
+  //   if (this.#mode !== Mode.CLOSE) {
+  //     this.#closePopup();
+  //   }
+  // };
 
   #onCardClick = async (card) => {
     if (document.querySelector('.film-details')) {
@@ -98,6 +95,9 @@ export default class CardPresenter {
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, userDetails: { ...this.#cardsModel.popupCard.userDetails, watchlist: !this.#cardsModel.popupCard.userDetails.watchlist }, scrollTop: scroll } :
         { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, watchlist: !this.#popupCard.userDetails.watchlist }, scrollTop: scroll });
+    if (this.#popupComponent) {
+      this.#commentsModel.prevComm = this.#popupComponent.getStateComments();
+    }
   };
 
   #onAlreadyWatchedClick = (scroll) => {
@@ -105,6 +105,9 @@ export default class CardPresenter {
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, userDetails: { ...this.#cardsModel.popupCard.userDetails, alreadyWatched: !this.#cardsModel.popupCard.userDetails.alreadyWatched }, scrollTop: scroll } :
         { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, alreadyWatched: !this.#popupCard.userDetails.alreadyWatched }, scrollTop: scroll });
+    if (this.#popupComponent) {
+      this.#commentsModel.prevComm = this.#popupComponent.getStateComments();
+    }
   };
 
   #onFavoriteClick = (scroll) => {
@@ -112,6 +115,9 @@ export default class CardPresenter {
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, userDetails: { ...this.#cardsModel.popupCard.userDetails, favorite: !this.#cardsModel.popupCard.userDetails.favorite }, scrollTop: scroll } :
         { ...this.#popupCard, userDetails: { ...this.#popupCard.userDetails, favorite: !this.#popupCard.userDetails.favorite }, scrollTop: scroll });
+    if (this.#popupComponent) {
+      this.#commentsModel.prevComm = this.#popupComponent.getStateComments();
+    }
   };
 
   #onCommentDeleteClick = (deletedCommentId) => {
@@ -119,6 +125,9 @@ export default class CardPresenter {
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, comments: [...this.#cardsModel.popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId, newComment: '' } :
         { ...this.#popupCard, comments: [...this.#popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId, newComment: '' });
+    if (this.#popupComponent) {
+      this.#commentsModel.prevComm = this.#popupComponent.getStateComments();
+    }
   };
 
   #onCommentFormSubmit = (newComment) => {
@@ -126,10 +135,11 @@ export default class CardPresenter {
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, newComment: newComment, deletedCommentId: '' } :
         { ...this.#popupCard, newComment: newComment, deletedCommentId: '' });
+    this.#commentsModel.prevComm = '';
   };
 
   #createPopup = (card = this.#cardComponent.card) => {
-    this.#changeMode();
+    //this.#changeMode();
     this.#popupComponent = new PopupView(card, this.#commentsModel.comments);
     this.#cardsModel.popupId = this.#popupComponent.element.dataset.filmId;
     this.#popupComponent.setCloseClickHandler(this.#closePopup);
@@ -142,14 +152,16 @@ export default class CardPresenter {
     siteBodyElement.classList.toggle('hide-overflow');
     render(this.#popupComponent, siteBodyElement, RenderPosition.AFTEREND);
     this.#popupComponent.element.scrollTop = this.#cardsModel.popupScrollPosition;
-    this.#mode = Mode.OPEN;
+    Object.keys(Error).forEach((key) => { Error[key] = false; });
+    //this.#mode = Mode.OPEN;
   };
 
   #closePopup = () => {
+    this.#cardsModel.key = false;
     document.querySelector('.film-details').remove();
-    siteBodyElement.classList.remove('hide-overflow');
+    siteBodyElement.classList.toggle('hide-overflow');
     document.removeEventListener('keydown', this.#onEscKeyDown);
-    this.#mode = Mode.CLOSE;
+    //this.#mode = Mode.CLOSE;
   };
 
   #onEscKeyDown = (evt) => {

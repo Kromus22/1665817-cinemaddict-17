@@ -10,6 +10,7 @@ import CardsModel from '../model/cards-model.js';
 import { sortDateDown, sortRatingDown, filters } from '../utils.js';
 import LoadingView from '../view/loading-view.js';
 import FooterStats from '../view/footer-stats-view.js';
+import { Error } from '../services/api-service.js';
 
 
 const CARD_COUNT_PER_STEP = 5;
@@ -25,8 +26,8 @@ export default class ContentPresenter {
   #mainComponent = new FilmsSectionView();
   #sortComponent = null;
   #filmsSectionList = new FilmsContainerView(Titles.COM);
-  #topFilmsListContainer = new FilmsContainerView(Titles.TOP, 'films-list--extra');
-  #mostCommsListContainer = new FilmsContainerView(Titles.MOST, 'films-list--extra');
+  #topFilmsListContainer = new FilmsContainerView(Titles.TOP, 'films-list--extra', 'films-list--rated');
+  #mostCommsListContainer = new FilmsContainerView(Titles.MOST, 'films-list--extra', 'films-list--commented');
   #showMoreBtnComponent = new ShowMoreButtonView();
   #loadingComponent = new LoadingView();
   #cards = new CardsModel();
@@ -74,7 +75,7 @@ export default class ContentPresenter {
   #renderNoResults = () => {
     render(this.#mainComponent, this.#mainContainer);
     this.#noResultsComponent = new NoResultsView(this.#filterType);
-    render(this.#noResultsComponent, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
+    render(this.#noResultsComponent, this.#filmsSectionList.element, RenderPosition.AFTERBEGIN);
   };
 
   #renderLoadMoreButton = () => {
@@ -95,6 +96,7 @@ export default class ContentPresenter {
 
   #handleViewAction = async (updateType, update) => {
     this.#cardsModel.popupRerender = true;
+    Object.keys(Error).forEach((key) => { Error[key] = false; });
     if (document.querySelector('.film-details')) {
       this.#cardsModel.popupScrollPosition = update.scrollTop;
     }
@@ -135,17 +137,29 @@ export default class ContentPresenter {
   };
 
   #renderTops = () => {
-    render(this.#topFilmsListContainer, this.#mainComponent.element);
-    render(this.#mostCommsListContainer, this.#mainComponent.element);
-
     const ratedMovies = this.#cardsModel.cards.slice().sort(sortRatingDown);
-    for (let i = 0; i < Math.min(ratedMovies.length, TOP_FILMS_COUNT); i++) {
-      this.#renderCard(ratedMovies[i], this.#topFilmsListContainer.container, 'rated');
+    if (ratedMovies.length) {
+      if (!document.querySelector('.films-list--rated')) {
+        render(this.#topFilmsListContainer, this.#mainComponent.element);
+      }
+      for (let i = 0; i < Math.min(ratedMovies.length, TOP_FILMS_COUNT); i++) {
+        this.#renderCard(ratedMovies[i], this.#topFilmsListContainer.container, 'rated');
+      }
+    } else {
+      this.#topFilmsListContainer.element.remove();
     }
 
-    const commentedMovies = this.#cardsModel.cards.slice().sort(sortDateDown);
-    for (let i = 0; i < Math.min(commentedMovies.length, TOP_FILMS_COUNT); i++) {
-      this.#renderCard(commentedMovies[i], this.#mostCommsListContainer.container, 'commented');
+    const commentedMovies = this.#cardsModel.cards.slice().sort((a, b) =>
+      b.comments.length - a.comments.length).filter((item) => item.comments.length !== 0);
+    if (commentedMovies.length) {
+      if (!document.querySelector('.films-list--commented')) {
+        render(this.#mostCommsListContainer, this.#mainComponent.element);
+      }
+      for (let i = 0; i < Math.min(commentedMovies.length, TOP_FILMS_COUNT); i++) {
+        this.#renderCard(commentedMovies[i], this.#mostCommsListContainer.container, 'commented');
+      }
+    } else {
+      this.#mostCommsListContainer.element.remove();
     }
   };
 
@@ -168,18 +182,20 @@ export default class ContentPresenter {
     }
   };
 
-  #clearCardList = ({ resetRenderedCardsCount = false, resetSortType = false, resetTops = false } = {}) => {
+  #clearCardList = ({ resetRenderedCardsCount = false, resetSortType = true, resetTops = false } = {}) => {
 
     if (resetSortType) {
       this.#currentSortType = SortType.DEFAULT;
     }
 
-    if (!this.cards.length) {
+    remove(this.#sortComponent);
+
+    if (this.cards.length === 0) {
       remove(this.#noResultsComponent);
-      remove(this.#sortComponent);
       this.#renderNoResults();
     } else {
       remove(this.#noResultsComponent);
+      this.#renderSort();
     }
 
     if (resetTops) {
@@ -192,12 +208,10 @@ export default class ContentPresenter {
     this.#cardPresenter.forEach((presenter) => presenter.destroy());
     this.#cardPresenter.clear();
     remove(this.#showMoreBtnComponent);
-    remove(this.#sortComponent);
 
     if (resetRenderedCardsCount) {
       this.#renderCardCount = CARD_COUNT_PER_STEP;
     }
-    this.#renderSort();
   };
 
   #renderLoading = () => {
@@ -238,7 +252,9 @@ export default class ContentPresenter {
         break;
       case UpdateType.MINOR:
         this.#clearCardList({ resetRenderedCardsCount: true, resetSortType: !this.isSorting });
-        this.#renderCardList();
+        if (this.cards.length) {
+          this.#renderCardList();
+        }
         break;
       case UpdateType.MAJOR:
         this.#clearCardList({ resetRenderedCardsCount: false, resetSortType: !update, resetTops: true });

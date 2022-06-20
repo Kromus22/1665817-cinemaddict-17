@@ -1,5 +1,6 @@
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../consts.js';
+import { Error } from '../services/api-service.js';
 
 export default class CardsModel extends Observable {
   #cards = [];
@@ -75,7 +76,8 @@ export default class CardsModel extends Observable {
       ];
       this._notify(updateType, update);
     } catch (err) {
-      update = this.cards.find((item) => item.id === update.item);
+      Error.CHANGING = true;
+      update = this.cards.find((item) => item.id === update.id);
       this._notify(UpdateType.PATCH, update);
       throw new Error('Can\'t update unexisting movie');
     }

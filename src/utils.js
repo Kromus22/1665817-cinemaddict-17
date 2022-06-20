@@ -14,8 +14,6 @@ const humanizeCommDate = (date) => {
   return dayjs(date).format('YYYY/MMMM/DD HH:MM');
 };
 
-const isFilmChecked = (check) => Object.values(check).some(Boolean);
-
 const filters = {
   [FilterType.ALL]: (movies) => movies,
   [FilterType.WATCHLIST]: (movies) => movies.filter(({ userDetails }) => userDetails.watchlist === true),
@@ -64,4 +62,4 @@ const updateItem = (items, update) => {
 };
 
 
-export { sortDateDown, sortRatingDown, humanizeDate, isFilmChecked, humanizePopupDate, humanizeCommDate, filters, updateItem };
+export { sortDateDown, sortRatingDown, humanizeDate, humanizePopupDate, humanizeCommDate, filters, updateItem };

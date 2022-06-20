@@ -1,12 +1,14 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizePopupDate, humanizeCommDate } from '../utils.js';
+import { Error } from '../services/api-service.js';
 import he from 'he';
 
-const createPopupTemplate = (state, commentsArr) => {
+const createPopupTemplate = (state, comments) => {
   const {
     filmInfo: { title, totalRating, release, runtime, genre, poster, description, director, writers, actors, alternativeTitle, ageRating },
     userDetails: { watchlist, alreadyWatched, favorite },
-    comments, tappedEmotionId, typedComment, isDeleting, deletedCommentId, isSaving, deletingCommentError, addingCommentError } = state;
+    errors: { DELETING, ADDING, CHANGING },
+    tappedEmotionId, typedComment, isDeleting, deletedCommentId, isSaving } = state;
   const releaseDate = release.date !== null
     ? humanizePopupDate(release.date)
     : '';
@@ -22,10 +24,9 @@ const createPopupTemplate = (state, commentsArr) => {
   const durationHours = Math.floor(runtime / 60);
   const durationMinutes = runtime - durationHours * 60;
 
-  const selectedComments = commentsArr.filter(({ id }) => comments.some((item) => item === id));
   const createCommentsTemplate = () => {
     const commentsList = document.createElement('ul');
-    selectedComments.forEach((item) => {
+    comments.forEach((item) => {
       commentsList.insertAdjacentHTML('beforeend',
         `<li class="film-details__comment">
           <span class="film-details__comment-emoji">
@@ -110,7 +111,7 @@ const createPopupTemplate = (state, commentsArr) => {
             </div>
           </div>
 
-          <section class="film-details__controls">
+          <section class="film-details__controls ${CHANGING ? 'shake' : ''}">
             <button type="button" data-control-type="watchlist" class="film-details__control-button film-details__control-button--watchlist ${getControlClassName(watchlist)}" id="watchlist" name="watchlist">Add to watchlist</button>
             <button type="button" data-control-type="watched" class="film-details__control-button film-details__control-button--watched ${getControlClassName(alreadyWatched)}" id="watched" name="watched">Already watched</button>
             <button type="button" data-control-type="favorite" class="film-details__control-button film-details__control-button--favorite ${getControlClassName(favorite)}" id="favorite" name="favorite">Add to favorites</button>
@@ -121,11 +122,11 @@ const createPopupTemplate = (state, commentsArr) => {
           <section class="film-details__comments-wrap">
             <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
-            <ul class="film-details__comments-list ${deletingCommentError ? 'shake' : ''}">
+            <ul class="film-details__comments-list ${DELETING ? 'shake' : ''}">
               ${createCommentsTemplate().innerHTML}
             </ul>
 
-            <div class="film-details__new-comment ${addingCommentError ? 'shake' : ''}">
+            <div class="film-details__new-comment ${ADDING ? 'shake' : ''}">
               <div class="film-details__add-emoji-label">${createEmotion()}</div>
 
               <label class="film-details__comment-label">
@@ -174,6 +175,7 @@ export default class PopupView extends AbstractStatefulView {
     this.card = card;
     this._state = this.#convertCardToState(card);
     this.#comments = comments;
+    this._state.errors = Error;
     this.#setInnerHandlers();
   }
 
@@ -260,6 +262,20 @@ export default class PopupView extends AbstractStatefulView {
     this.setformSubmitHandler(this._callback.commentFormSubmit);
   };
 
+  getStateComments = () => (
+    {
+      text: this._state.typedComment,
+      emoji: this._state.tappedEmotionId
+    }
+  );
+
+  setNewStateComments = (newState) => (
+    this.updateElement({
+      typedComment: newState.text,
+      tappedEmotionId: newState.emoji
+    })
+  );
+
   #setInnerHandlers = () => {
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emotionClickHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#descriptionInputHandler);
@@ -275,8 +291,7 @@ export default class PopupView extends AbstractStatefulView {
   #emotionClickHandler = (evt) => {
     if (evt.target.nodeName === 'INPUT') {
       evt.preventDefault();
-      delete this._state.deletingCommentError;
-      delete this._state.addingCommentError;
+      Object.keys(this._state.errors).forEach((key) => { this._state.errors[key] = false; });
       this.updateElement({
         tappedEmotionId: evt.target.id,
       });

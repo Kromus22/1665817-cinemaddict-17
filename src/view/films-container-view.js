@@ -7,7 +7,13 @@ const SectionType = {
   mostComm: '<h2 class="films-list__title">Most commented</h2>',
 };
 
-const createFilmsSectionTemplate = (title, extra) => {
+const createFilmsSectionTemplate = (title, extra, top) => {
+
+  let extraClass = '';
+
+  if (top) {
+    extraClass = top;
+  }
 
   let filmClass = '';
 
@@ -25,7 +31,7 @@ const createFilmsSectionTemplate = (title, extra) => {
     }
   };
   return `
-    <section class="films-list ${filmClass}">
+    <section class="films-list ${filmClass} ${extraClass}">
       ${sectionTitle()}
       <div class="films-list__container">
 
@@ -35,14 +41,15 @@ const createFilmsSectionTemplate = (title, extra) => {
 };
 
 export default class FilmsContainerView extends AbstractView {
-  constructor(title, extra) {
+  constructor(title, extra, top) {
     super();
     this.title = title;
     this.extra = extra;
+    this.top = top;
   }
 
   get template() {
-    return createFilmsSectionTemplate(this.title, this.extra);
+    return createFilmsSectionTemplate(this.title, this.extra, this.top);
   }
 
   get container() {
