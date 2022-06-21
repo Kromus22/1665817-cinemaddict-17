@@ -121,14 +121,10 @@ export default class ContentPresenter {
     this.#handleMovieEvent(UpdateType.MINOR, this.isSorting = true);
   };
 
-  #handleModeChange = () => {
-    this.#cardPresenter.forEach((presenter) => presenter.resetView());
-  };
-
   #renderCardList = () => {
     render(this.#mainComponent, this.#mainContainer);
     render(this.#filmsSectionList, this.#mainComponent.element, RenderPosition.AFTERBEGIN);
-    for (let i = 0; i < Math.min(this.#cardsModel.cards.length, this.#renderCardCount); i++) {
+    for (let i = 0; i < Math.min(this.cards.length, this.#renderCardCount); i++) {
       this.#renderCard(this.cards[i], this.#filmsSectionList.container);
     }
     if (this.cards.length > CARD_COUNT_PER_STEP) {
@@ -168,7 +164,7 @@ export default class ContentPresenter {
   };
 
   #renderCard = (card, place, extra) => {
-    const cardPresenter = new CardPresenter(place, this.#cardsModel, this.#handleViewAction, this.#filterModel, this.#commentsModel, this.#handleModeChange);
+    const cardPresenter = new CardPresenter(place, this.#cardsModel, this.#handleViewAction, this.#filterModel, this.#commentsModel);
     cardPresenter.init(card);
     switch (extra) {
       case 'rated':
@@ -231,10 +227,10 @@ export default class ContentPresenter {
     if (!this.cards.length) {
       remove(this.#sortComponent);
       this.#renderNoResults();
-      return;
+    } else {
+      this.#renderCardList();
+      this.#renderTops();
     }
-    this.#renderCardList();
-    this.#renderTops();
   };
 
   #handleMovieEvent = (updateType, update) => {

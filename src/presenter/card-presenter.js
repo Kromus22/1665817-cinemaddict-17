@@ -5,10 +5,6 @@ import { UpdateType } from '../consts.js';
 import { Error } from '../services/api-service.js';
 
 const siteBodyElement = document.querySelector('body');
-// const Mode = {
-//   OPEN: 'OPEN',
-//   CLOSE: 'CLOSE',
-// };
 
 export default class CardPresenter {
   #filmsSectionList = null;
@@ -19,28 +15,23 @@ export default class CardPresenter {
   #commentsModel = null;
   #filterModel = null;
   #popupCard = null;
-  // #changeMode = null;
-  // #mode = Mode.CLOSE;
 
-
-  constructor(container, cardsModel, changeData, filterModel, commentsModel, changeMode) {
+  constructor(container, cardsModel, changeData, filterModel, commentsModel) {
     this.#filmsSectionList = container;
     this.#cardsModel = cardsModel;
     this.#changeData = changeData;
     this.#filterModel = filterModel;
     this.#commentsModel = commentsModel;
-    // this.#changeMode = changeMode;
   }
 
   init = (card) => {
     const prevCardComponent = this.#cardComponent;
-    //const prevPopupComponent = this.#popupComponent;
     this.#cardComponent = new FilmCardView(card);
 
-    this.#cardComponent.setClickHandler(this.#onCardClick);
-    this.#cardComponent.setWatchlistClickHandler(this.#onWatchListClick);
-    this.#cardComponent.setAlreadyWatchedClickHandler(this.#onAlreadyWatchedClick);
-    this.#cardComponent.setFavoriteClickHandler(this.#onFavoriteClick);
+    this.#cardComponent.setClickHandler(this.#cardClickHandler);
+    this.#cardComponent.setWatchlistClickHandler(this.#watchListClickHandler);
+    this.#cardComponent.setAlreadyWatchedClickHandler(this.#alreadyWatchedClickHandler);
+    this.#cardComponent.setFavoriteClickHandler(this.#favoriteClickHandler);
 
     if (prevCardComponent === null) {
       render(this.#cardComponent, this.#filmsSectionList);
@@ -51,17 +42,11 @@ export default class CardPresenter {
       }
     }
 
-    // if (this.#mode === Mode.OPEN) {
-    //   if (!prevPopupComponent) { this.#createPopup(card); }
-    // }
-
-    // remove(prevPopupComponent);
-
     this.#popupCard = card;
 
     if (document.querySelector('.film-details') && this.#cardsModel.popupRerender) {
       this.#cardsModel.popupCard = this.#cardsModel.cards.find((item) => item.id === this.#cardsModel.popupId);
-      this.#onCardClick(this.#cardsModel.popupCard);
+      this.#cardClickHandler(this.#cardsModel.popupCard);
       this.#popupComponent.setNewStateComments(this.#commentsModel.prevComm);
       this.#popupComponent.element.scrollTop = this.#cardsModel.popupScrollPosition;
       this.#cardsModel.popupRerender = false;
@@ -71,26 +56,20 @@ export default class CardPresenter {
 
   destroy = () => {
     remove(this.#cardComponent);
-    document.removeEventListener('keydown', this.#onEscKeyDown);
+    document.removeEventListener('keydown', this.#popupEscPressHandler);
   };
 
-  // resetView = () => {
-  //   if (this.#mode !== Mode.CLOSE) {
-  //     this.#closePopup();
-  //   }
-  // };
-
-  #onCardClick = async (card) => {
+  #cardClickHandler = async (card) => {
     if (document.querySelector('.film-details')) {
       if (!this.#cardsModel.popupRerender) { await this.#commentsModel.init(this.#cardComponent.card); }
-      this.#closePopup();
+      this.#closeClickHandler();
     } else {
       await this.#commentsModel.init(this.#cardComponent.card);
     }
-    this.#createPopup(card);
+    this.#renderPopup(card);
   };
 
-  #onWatchListClick = (scroll) => {
+  #watchListClickHandler = (scroll) => {
     this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR,
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, userDetails: { ...this.#cardsModel.popupCard.userDetails, watchlist: !this.#cardsModel.popupCard.userDetails.watchlist }, scrollTop: scroll } :
@@ -100,7 +79,7 @@ export default class CardPresenter {
     }
   };
 
-  #onAlreadyWatchedClick = (scroll) => {
+  #alreadyWatchedClickHandler = (scroll) => {
     this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR,
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, userDetails: { ...this.#cardsModel.popupCard.userDetails, alreadyWatched: !this.#cardsModel.popupCard.userDetails.alreadyWatched }, scrollTop: scroll } :
@@ -110,7 +89,7 @@ export default class CardPresenter {
     }
   };
 
-  #onFavoriteClick = (scroll) => {
+  #favoriteClickHandler = (scroll) => {
     this.#changeData(this.#filterModel.filter === 'all' ? UpdateType.PATCH : UpdateType.MAJOR,
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, userDetails: { ...this.#cardsModel.popupCard.userDetails, favorite: !this.#cardsModel.popupCard.userDetails.favorite }, scrollTop: scroll } :
@@ -120,7 +99,7 @@ export default class CardPresenter {
     }
   };
 
-  #onCommentDeleteClick = (deletedCommentId) => {
+  #commentDeleteClickHandler = (deletedCommentId) => {
     this.#changeData(UpdateType.MAJOR,
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, comments: [...this.#cardsModel.popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId, newComment: '' } :
@@ -130,7 +109,7 @@ export default class CardPresenter {
     }
   };
 
-  #onCommentFormSubmit = (newComment) => {
+  #commentFormSubmitHandler = (newComment) => {
     this.#changeData(UpdateType.MAJOR,
       document.querySelector('.film-details') && this.#cardsModel.key ?
         { ...this.#cardsModel.popupCard, newComment: newComment, deletedCommentId: '' } :
@@ -138,36 +117,35 @@ export default class CardPresenter {
     this.#commentsModel.prevComm = '';
   };
 
-  #createPopup = (card = this.#cardComponent.card) => {
-    //this.#changeMode();
+  #renderPopup = (card = this.#cardComponent.card) => {
     this.#popupComponent = new PopupView(card, this.#commentsModel.comments);
     this.#cardsModel.popupId = this.#popupComponent.element.dataset.filmId;
-    this.#popupComponent.setCloseClickHandler(this.#closePopup);
-    this.#popupComponent.setWatchlistClickHandler(this.#onWatchListClick);
-    this.#popupComponent.setAlreadyWatchedClickHandler(this.#onAlreadyWatchedClick);
-    this.#popupComponent.setFavoriteClickHandler(this.#onFavoriteClick);
-    this.#popupComponent.setCommentDeleteClickHandler(this.#onCommentDeleteClick);
-    this.#popupComponent.setformSubmitHandler(this.#onCommentFormSubmit);
-    document.addEventListener('keydown', this.#onEscKeyDown);
+    this.#popupComponent.setCloseClickHandler(this.#closeClickHandler);
+    this.#popupComponent.setWatchlistClickHandler(this.#watchListClickHandler);
+    this.#popupComponent.setAlreadyWatchedClickHandler(this.#alreadyWatchedClickHandler);
+    this.#popupComponent.setFavoriteClickHandler(this.#favoriteClickHandler);
+    this.#popupComponent.setCommentDeleteClickHandler(this.#commentDeleteClickHandler);
+    this.#popupComponent.setformSubmitHandler(this.#commentFormSubmitHandler);
+    document.addEventListener('keydown', this.#popupEscPressHandler);
     siteBodyElement.classList.toggle('hide-overflow');
     render(this.#popupComponent, siteBodyElement, RenderPosition.AFTEREND);
     this.#popupComponent.element.scrollTop = this.#cardsModel.popupScrollPosition;
     Object.keys(Error).forEach((key) => { Error[key] = false; });
-    //this.#mode = Mode.OPEN;
   };
 
-  #closePopup = () => {
+  #closeClickHandler = () => {
     this.#cardsModel.key = false;
-    document.querySelector('.film-details').remove();
-    siteBodyElement.classList.toggle('hide-overflow');
-    document.removeEventListener('keydown', this.#onEscKeyDown);
-    //this.#mode = Mode.CLOSE;
+    if (document.querySelector('.film-details')) {
+      document.querySelector('.film-details').remove();
+    }
+    siteBodyElement.classList.remove('hide-overflow');
+    document.removeEventListener('keydown', this.#popupEscPressHandler);
   };
 
-  #onEscKeyDown = (evt) => {
+  #popupEscPressHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      this.#closePopup();
+      this.#closeClickHandler();
     }
   };
 }

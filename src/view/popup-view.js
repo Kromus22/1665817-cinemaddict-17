@@ -183,85 +183,6 @@ export default class PopupView extends AbstractStatefulView {
     return createPopupTemplate(this._state, this.#comments);
   }
 
-  #convertCardToState = (card) => ({ ...card, tappedEmotionId: null });
-
-  setCloseClickHandler = (callback) => {
-    this._callback.popupCloseButtonClick = callback;
-    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeClickHandler, { once: true });
-  };
-
-  #closeClickHandler = () => {
-    this._callback.popupCloseButtonClick();
-  };
-
-  setWatchlistClickHandler = (callback) => {
-    this._callback.toWatchListClick = callback;
-    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchListClickHandler);
-  };
-
-  #watchListClickHandler = () => {
-    this._callback.toWatchListClick(this.element.scrollTop);
-  };
-
-  setAlreadyWatchedClickHandler = (callback) => {
-    this._callback.alreadyWatchedClick = callback;
-    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#alreadyWatchedClickHandler);
-  };
-
-  #alreadyWatchedClickHandler = () => {
-    this._callback.alreadyWatchedClick(this.element.scrollTop);
-  };
-
-  setFavoriteClickHandler = (callback) => {
-    this._callback.favoriteClick = callback;
-    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
-  };
-
-  #favoriteClickHandler = () => {
-    this._callback.favoriteClick(this.element.scrollTop);
-  };
-
-  setCommentDeleteClickHandler = (callback) => {
-    this._callback.commentDeleteClick = callback;
-    this.element.querySelector('.film-details__comments-list').addEventListener('click', this.#commentDeleteClickHandler);
-  };
-
-  #commentDeleteClickHandler = (evt) => {
-    if (evt.target.nodeName === 'BUTTON') {
-      evt.preventDefault();
-      this.updateElement({
-        isDeleting: true,
-        deletedCommentId: evt.target.dataset.commentId,
-      });
-      this._callback.commentDeleteClick(evt.target.dataset.commentId);
-    }
-  };
-
-  setformSubmitHandler = (callback) => {
-    this._callback.commentFormSubmit = callback;
-    this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#formSubmitHandler);
-  };
-
-  #formSubmitHandler = (evt) => {
-    if ((evt.keyCode === 10 || evt.keyCode === 13) && (evt.ctrlKey || evt.metaKey)) {
-      evt.preventDefault();
-      this.updateElement({
-        isSaving: true,
-      });
-      this._callback.commentFormSubmit(createNewCommentTemplate(evt, this._state));
-    }
-  };
-
-  _restoreHandlers = () => {
-    this.#setInnerHandlers();
-    this.setWatchlistClickHandler(this._callback.toWatchListClick);
-    this.setAlreadyWatchedClickHandler(this._callback.alreadyWatchedClick);
-    this.setFavoriteClickHandler(this._callback.favoriteClick);
-    this.setCloseClickHandler(this._callback.popupCloseButtonClick);
-    this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
-    this.setformSubmitHandler(this._callback.commentFormSubmit);
-  };
-
   getStateComments = () => (
     {
       text: this._state.typedComment,
@@ -275,6 +196,75 @@ export default class PopupView extends AbstractStatefulView {
       tappedEmotionId: newState.emoji
     })
   );
+
+  setWatchlistClickHandler = (callback) => {
+    this._callback.toWatchListClick = callback;
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchListClickHandler);
+  };
+
+  setAlreadyWatchedClickHandler = (callback) => {
+    this._callback.alreadyWatchedClick = callback;
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#alreadyWatchedClickHandler);
+  };
+
+  setFavoriteClickHandler = (callback) => {
+    this._callback.favoriteClick = callback;
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
+  };
+
+  setCommentDeleteClickHandler = (callback) => {
+    this._callback.commentDeleteClick = callback;
+    this.element.querySelector('.film-details__comments-list').addEventListener('click', this.#commentDeleteClickHandler);
+  };
+
+  setformSubmitHandler = (callback) => {
+    this._callback.commentFormSubmit = callback;
+    this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#formSubmitHandler);
+  };
+
+  setCloseClickHandler = (callback) => {
+    this._callback.popupCloseButtonClick = callback;
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeClickHandler, { once: true });
+  };
+
+  #convertCardToState = (card) => ({ ...card, tappedEmotionId: null });
+
+  #closeClickHandler = () => {
+    this._callback.popupCloseButtonClick();
+  };
+
+  #watchListClickHandler = () => {
+    this._callback.toWatchListClick(this.element.scrollTop);
+  };
+
+  #alreadyWatchedClickHandler = () => {
+    this._callback.alreadyWatchedClick(this.element.scrollTop);
+  };
+
+  #favoriteClickHandler = () => {
+    this._callback.favoriteClick(this.element.scrollTop);
+  };
+
+  #commentDeleteClickHandler = (evt) => {
+    if (evt.target.nodeName === 'BUTTON') {
+      evt.preventDefault();
+      this.updateElement({
+        isDeleting: true,
+        deletedCommentId: evt.target.dataset.commentId,
+      });
+      this._callback.commentDeleteClick(evt.target.dataset.commentId);
+    }
+  };
+
+  #formSubmitHandler = (evt) => {
+    if ((evt.keyCode === 10 || evt.keyCode === 13) && (evt.ctrlKey || evt.metaKey)) {
+      evt.preventDefault();
+      this.updateElement({
+        isSaving: true,
+      });
+      this._callback.commentFormSubmit(createNewCommentTemplate(evt, this._state));
+    }
+  };
 
   #setInnerHandlers = () => {
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emotionClickHandler);
@@ -297,4 +287,15 @@ export default class PopupView extends AbstractStatefulView {
       });
     }
   };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setWatchlistClickHandler(this._callback.toWatchListClick);
+    this.setAlreadyWatchedClickHandler(this._callback.alreadyWatchedClick);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
+    this.setCloseClickHandler(this._callback.popupCloseButtonClick);
+    this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
+    this.setformSubmitHandler(this._callback.commentFormSubmit);
+  };
+
 }

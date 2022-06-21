@@ -3,29 +3,29 @@ import { humanizeDate } from '../utils.js';
 const MAX_DESCR_LENGTH = 139;
 
 const createFilmCardTemplate = (card) => {
-  if (card) {
-    const {
-      filmInfo: { title, totalRating, release, runtime, genre, poster, description },
-      userDetails: { watchlist, alreadyWatched, favorite }
-    } = card;
 
-    const descriptionFilm = description.length > MAX_DESCR_LENGTH
-      ? `${description.slice(0, MAX_DESCR_LENGTH)}...` : description;
+  const {
+    filmInfo: { title, totalRating, release, runtime, genre, poster, description },
+    userDetails: { watchlist, alreadyWatched, favorite }
+  } = card;
 
-    const releaseDate = release.date !== null
-      ? humanizeDate(release.date)
-      : '';
+  const descriptionFilm = description.length > MAX_DESCR_LENGTH
+    ? `${description.slice(0, MAX_DESCR_LENGTH)}...` : description;
 
-    const getControlClassName = (option) => option
-      ? 'film-card__controls-item--active'
-      : '';
+  const releaseDate = release.date !== null
+    ? humanizeDate(release.date)
+    : '';
 
-    const durationHours = Math.floor(runtime / 60);
-    const durationMinutes = runtime - durationHours * 60;
+  const getControlClassName = (option) => option
+    ? 'film-card__controls-item--active'
+    : '';
 
-    const commentsCount = card.comments.length;
+  const durationHours = Math.floor(runtime / 60);
+  const durationMinutes = runtime - durationHours * 60;
 
-    return (`
+  const commentsCount = card.comments.length;
+
+  return (`
   <article class="film-card">
     <a class="film-card__link">
       <h3 class="film-card__title">${title}</h3>
@@ -46,7 +46,6 @@ const createFilmCardTemplate = (card) => {
     </div>
   </article>
   `);
-  }
 };
 
 export default class FilmCardView extends AbstractView {
@@ -64,17 +63,9 @@ export default class FilmCardView extends AbstractView {
     this.element.querySelector('.film-card__link').addEventListener('click', this.#clickHandler);
   };
 
-  #clickHandler = () => {
-    this._callback.movieCardClick();
-  };
-
   setWatchlistClickHandler = (callback) => {
     this._callback.toWatchListClick = callback;
     this.element.querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this.#watchListClickHandler);
-  };
-
-  #watchListClickHandler = () => {
-    this._callback.toWatchListClick();
   };
 
   setAlreadyWatchedClickHandler = (callback) => {
@@ -82,13 +73,21 @@ export default class FilmCardView extends AbstractView {
     this.element.querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this.#alreadyWatchedClickHandler);
   };
 
-  #alreadyWatchedClickHandler = () => {
-    this._callback.alreadyWatchedClick();
-  };
-
   setFavoriteClickHandler = (callback) => {
     this._callback.favoriteClick = callback;
     this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#favoriteClickHandler);
+  };
+
+  #clickHandler = () => {
+    this._callback.movieCardClick();
+  };
+
+  #watchListClickHandler = () => {
+    this._callback.toWatchListClick();
+  };
+
+  #alreadyWatchedClickHandler = () => {
+    this._callback.alreadyWatchedClick();
   };
 
   #favoriteClickHandler = () => {

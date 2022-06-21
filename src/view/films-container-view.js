@@ -2,9 +2,9 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { Titles } from '../consts.js';
 
 const SectionType = {
-  common: '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>',
-  topRated: '<h2 class="films-list__title">Top rated</h2>',
-  mostComm: '<h2 class="films-list__title">Most commented</h2>',
+  COMMON: '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>',
+  RATED: '<h2 class="films-list__title">Top rated</h2>',
+  COMMENTED: '<h2 class="films-list__title">Most commented</h2>',
 };
 
 const createFilmsSectionTemplate = (title, extra, top) => {
@@ -23,11 +23,11 @@ const createFilmsSectionTemplate = (title, extra, top) => {
   const sectionTitle = () => {
     switch (title) {
       case Titles.COM:
-        return SectionType.common;
+        return SectionType.COMMON;
       case Titles.TOP:
-        return SectionType.topRated;
+        return SectionType.RATED;
       case Titles.MOST:
-        return SectionType.mostComm;
+        return SectionType.COMMENTED;
     }
   };
   return `
