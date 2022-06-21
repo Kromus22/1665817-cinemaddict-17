@@ -39,6 +39,19 @@ export default class MoviesApiService extends ApiService {
     return parsedResponse;
   };
 
+  updateCard = async (card) => {
+    const response = await this._load({
+      url: `movies/${card.id}`,
+      method: Method.PUT,
+      body: JSON.stringify(this.#adaptToServer(card)),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    });
+
+    const parsedResponse = await ApiService.parseResponse(response);
+
+    return parsedResponse;
+  };
+
   #adaptToServer = (card) => {
     const adaptedCard = {
       ...card,
@@ -67,19 +80,6 @@ export default class MoviesApiService extends ApiService {
     delete adaptedCard['film_info'].totalRating;
 
     return adaptedCard;
-  };
-
-  updateCard = async (card) => {
-    const response = await this._load({
-      url: `movies/${card.id}`,
-      method: Method.PUT,
-      body: JSON.stringify(this.#adaptToServer(card)),
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-    });
-
-    const parsedResponse = await ApiService.parseResponse(response);
-
-    return parsedResponse;
   };
 }
 

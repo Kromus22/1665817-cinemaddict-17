@@ -21,37 +21,6 @@ export default class CardsModel extends Observable {
     this._notify(UpdateType.INIT);
   };
 
-  #adaptToClient = (card) => {
-    const adaptedCard = {
-      ...card,
-      userDetails: {
-        ...card['user_details'],
-        alreadyWatched: card['user_details']['already_watched'],
-        watchingDate: card['user_details']['watching_date'],
-      },
-      filmInfo: {
-        ...card['film_info'],
-        ageRating: card['film_info']['age_rating'],
-        alternativeTitle: card['film_info']['alternative_title'],
-        totalRating: card['film_info']['total_rating'],
-        release: {
-          date: card['film_info']['release']['date'],
-          releaseCountry: card['film_info']['release']['release_country']
-        }
-      }
-    };
-
-    delete adaptedCard['film_info'];
-    delete adaptedCard.userDetails['watching_date'];
-    delete adaptedCard.userDetails['already_watched'];
-    delete adaptedCard['user_details'];
-    delete adaptedCard.filmInfo['age_rating'];
-    delete adaptedCard.filmInfo['alternative_title'];
-    delete adaptedCard.filmInfo['total_rating'];
-
-    return adaptedCard;
-  };
-
   popupScrollPosition;
   popupRerender = false;
 
@@ -81,5 +50,36 @@ export default class CardsModel extends Observable {
       this._notify(UpdateType.PATCH, update);
       throw new Error('Can\'t update unexisting movie');
     }
+  };
+
+  #adaptToClient = (card) => {
+    const adaptedCard = {
+      ...card,
+      userDetails: {
+        ...card['user_details'],
+        alreadyWatched: card['user_details']['already_watched'],
+        watchingDate: card['user_details']['watching_date'],
+      },
+      filmInfo: {
+        ...card['film_info'],
+        ageRating: card['film_info']['age_rating'],
+        alternativeTitle: card['film_info']['alternative_title'],
+        totalRating: card['film_info']['total_rating'],
+        release: {
+          date: card['film_info']['release']['date'],
+          releaseCountry: card['film_info']['release']['release_country']
+        }
+      }
+    };
+
+    delete adaptedCard['film_info'];
+    delete adaptedCard.userDetails['watching_date'];
+    delete adaptedCard.userDetails['already_watched'];
+    delete adaptedCard['user_details'];
+    delete adaptedCard.filmInfo['age_rating'];
+    delete adaptedCard.filmInfo['alternative_title'];
+    delete adaptedCard.filmInfo['total_rating'];
+
+    return adaptedCard;
   };
 }
