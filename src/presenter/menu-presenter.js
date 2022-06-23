@@ -1,13 +1,17 @@
 import MenuView from '../view/menu-view.js';
+import ProfileView from '../view/profile-view.js';
 import { render, replace, remove } from '../framework/render.js';
 import { filters } from '../utils.js';
 import { FilterType, UpdateType } from '../consts.js';
+
+const siteHeaderElement = document.querySelector('header');
 
 export default class FilterPresenter {
   #filterContainer = null;
   #filterModel = null;
   #cardsModel = null;
   #filterComponent = null;
+  #userRatingComponent = null;
 
   constructor(filterContainer, filterModel, cardsModel) {
     this.#filterContainer = filterContainer;
@@ -48,9 +52,15 @@ export default class FilterPresenter {
   init = () => {
     const filter = this.filters;
     const prevFilterComponent = this.#filterComponent;
+    const prevUserRatingComponent = this.#userRatingComponent;
 
     this.#filterComponent = new MenuView(filter, this.#filterModel.filter);
     this.#filterComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
+    this.#userRatingComponent = new ProfileView(filter.find((item) => item.name === 'History').count);
+
+    if (prevUserRatingComponent === null) {
+      render(this.#userRatingComponent, siteHeaderElement);
+    }
 
     if (prevFilterComponent === null) {
       render(this.#filterComponent, this.#filterContainer);
@@ -58,6 +68,8 @@ export default class FilterPresenter {
     }
     replace(this.#filterComponent, prevFilterComponent);
     remove(prevFilterComponent);
+    replace(this.#userRatingComponent, prevUserRatingComponent);
+    remove(prevUserRatingComponent);
   };
 
   #handleModelEvent = () => {

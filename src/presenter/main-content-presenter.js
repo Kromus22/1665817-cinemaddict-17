@@ -6,7 +6,6 @@ import { render, remove, RenderPosition } from '../framework/render.js';
 import CardPresenter from './card-presenter.js';
 import NoResultsView from '../view/no-results-view.js';
 import SortView from '../view/sorts-view.js';
-import CardsModel from '../model/cards-model.js';
 import { sortDateDown, sortRatingDown, filters } from '../utils.js';
 import LoadingView from '../view/loading-view.js';
 import FooterStats from '../view/footer-stats-view.js';
@@ -30,7 +29,6 @@ export default class ContentPresenter {
   #mostCommsListContainer = new FilmsContainerView(Titles.MOST, 'films-list--extra', 'films-list--commented');
   #showMoreBtnComponent = new ShowMoreButtonView();
   #loadingComponent = new LoadingView();
-  #cards = new CardsModel();
 
   #renderCardCount = CARD_COUNT_PER_STEP;
   #cardPresenter = new Map();
@@ -74,6 +72,7 @@ export default class ContentPresenter {
 
   #renderNoResults = () => {
     render(this.#mainComponent, this.#mainContainer);
+    render(this.#filmsSectionList, this.#mainComponent.element);
     this.#noResultsComponent = new NoResultsView(this.#filterType);
     render(this.#noResultsComponent, this.#filmsSectionList.element, RenderPosition.AFTERBEGIN);
   };
@@ -224,7 +223,7 @@ export default class ContentPresenter {
     render(this.#mainComponent, this.#mainContainer);
     this.#renderSiteFooter(new FooterStats(this.cards.length), siteFooterElement);
 
-    if (!this.cards.length) {
+    if (this.cards.length === 0) {
       remove(this.#sortComponent);
       this.#renderNoResults();
     } else {

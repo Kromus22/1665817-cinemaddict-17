@@ -99,21 +99,21 @@ export default class CardPresenter {
     }
   };
 
-  #commentDeleteClickHandler = (deletedCommentId) => {
+  #commentDeleteClickHandler = (deletedCommentId, scroll) => {
     this.#changeData(UpdateType.MAJOR,
       document.querySelector('.film-details') && this.#cardsModel.key ?
-        { ...this.#cardsModel.popupCard, comments: [...this.#cardsModel.popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId, newComment: '' } :
-        { ...this.#popupCard, comments: [...this.#popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId, newComment: '' });
+        { ...this.#cardsModel.popupCard, comments: [...this.#cardsModel.popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId, newComment: '', scrollTop: scroll } :
+        { ...this.#popupCard, comments: [...this.#popupCard.comments.filter((item) => item !== deletedCommentId)], deletedCommentId: deletedCommentId, newComment: '', scrollTop: scroll });
     if (this.#popupComponent) {
       this.#commentsModel.prevComm = this.#popupComponent.getStateComments();
     }
   };
 
-  #commentFormSubmitHandler = (newComment) => {
+  #commentFormSubmitHandler = (newComment, scroll) => {
     this.#changeData(UpdateType.MAJOR,
       document.querySelector('.film-details') && this.#cardsModel.key ?
-        { ...this.#cardsModel.popupCard, newComment: newComment, deletedCommentId: '' } :
-        { ...this.#popupCard, newComment: newComment, deletedCommentId: '' });
+        { ...this.#cardsModel.popupCard, newComment: newComment, deletedCommentId: '', scrollTop: scroll } :
+        { ...this.#popupCard, newComment: newComment, deletedCommentId: '', scrollTop: scroll });
     this.#commentsModel.prevComm = '';
   };
 

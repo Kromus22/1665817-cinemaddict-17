@@ -252,7 +252,7 @@ export default class PopupView extends AbstractStatefulView {
         isDeleting: true,
         deletedCommentId: evt.target.dataset.commentId,
       });
-      this._callback.commentDeleteClick(evt.target.dataset.commentId);
+      this._callback.commentDeleteClick(evt.target.dataset.commentId, this.element.scrollTop);
     }
   };
 
@@ -262,7 +262,7 @@ export default class PopupView extends AbstractStatefulView {
       this.updateElement({
         isSaving: true,
       });
-      this._callback.commentFormSubmit(createNewCommentTemplate(evt, this._state));
+      this._callback.commentFormSubmit(createNewCommentTemplate(evt, this._state), this.element.scrollTop);
     }
   };
 
